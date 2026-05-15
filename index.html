@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ASCII-lator // Studio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Roboto+Mono:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        /* Google Material 3 Dark Theme Tokens */
+        :root {
+            --md-bg: #000000;
+            --md-surface: #121212;
+            --md-surface-container: #1E1E1E;
+            --md-on-surface: #E3E3E3;
+            --md-on-surface-variant: #C4C7C5;
+            --md-primary: #A8C7FA;
+            --md-on-primary: #062E6F;
+            --md-outline: #444746;
+            --md-error: #F2B8B5;
+            --md-on-error: #601410;
+            --radius-sm: 4px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+        }
+
+        body {
+            background-color: var(--md-bg);
+            color: var(--md-on-surface);
+            font-family: 'Roboto', 'Inter', -apple-system, sans-serif;
+            font-size: 14px;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Layout --- */
+        #sidebar {
+            width: 380px;
+            background: var(--md-surface);
+            border-right: 1px solid var(--md-outline);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 0 24px 40px 24px; 
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: var(--md-surface);
+            z-index: 100;
+            padding-top: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--md-outline);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #workspace {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--md-bg);
+            background-image: radial-gradient(circle at center, #111 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 32px;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            border: 1px solid var(--md-outline);
+        }
+
+        video, img { display: none; }
+
+        /* --- Typography --- */
+        /* NEW: Retro hi-tech branding for the main logo */
+        h2 { 
+            margin: 0; 
+            font-size: 22px; 
+            font-weight: 700; 
+            letter-spacing: 2px; 
+            color: var(--md-primary); 
+            font-family: 'Space Mono', monospace; 
+        }
+        
+        h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--md-on-surface); }
+        label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--md-on-surface-variant); cursor: pointer; }
+        
+        .val-display { font-family: monospace; color: var(--md-primary); font-size: 12px; }
+
+        /* --- Cards & Containers --- */
+        .card { background: var(--md-surface-container); border: 1px solid var(--md-outline); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .row-start { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+
+        /* --- Custom Inputs --- */
+        input[type="range"] { width: 100%; accent-color: var(--md-primary); cursor: pointer; }
+        
+        input[type="text"] { 
+            width: 100%; 
+            background: var(--md-surface); 
+            color: var(--md-on-surface); 
+            border: 1px solid var(--md-outline); 
+            padding: 8px 12px; 
+            border-radius: var(--radius-sm); 
+            font-size: 13px; 
+            box-sizing: border-box;
+        }
+
+        #customChars {
+            font-family: 'Space Mono', monospace; 
+            letter-spacing: 2px;
+        }
+
+        select { 
+            width: 100%; 
+            background-color: var(--md-surface); 
+            color: var(--md-on-surface); 
+            border: 1px solid var(--md-outline); 
+            padding: 8px 32px 8px 12px; 
+            border-radius: var(--radius-sm); 
+            font-family: inherit; 
+            font-size: 13px; 
+            cursor: pointer; 
+            box-sizing: border-box;
+            appearance: none; 
+            -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23C4C7C5" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+        }
+
+        #charPreset {
+            width: 44px;
+            padding: 8px;
+            background-position: center; 
+            color: transparent; 
+        }
+        #charPreset option {
+            color: var(--md-on-surface); 
+        }
+        
+        input[type="color"] { width: 100%; height: 36px; border: 1px solid var(--md-outline); border-radius: var(--radius-sm); background: var(--md-surface); cursor: pointer; padding: 2px; }
+        
+        input[type="file"] {
+            color: var(--md-on-surface-variant);
+            padding: 0;
+            background: transparent;
+            border: none;
+            font-size: 12px;
+            width: 100%;
+        }
+        input[type="file"]::file-selector-button {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            border: none;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-right: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover { background: #BBD1FA; }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--md-outline);
+            border-radius: 50%; 
+            margin: 0;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: 0.2s all;
+            background: transparent;
+        }
+        input[type="checkbox"]::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--md-on-primary);
+            transform: scale(0);
+            transition: 0.2s transform cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        input[type="checkbox"]:checked { background-color: var(--md-primary); border-color: var(--md-primary); }
+        input[type="checkbox"]:checked::before { transform: scale(1); }
+
+        /* --- Segmented Button --- */
+        .segmented-control { display: flex; background: var(--md-surface-container); border: 1px solid var(--md-outline); border-radius: var(--radius-lg); overflow: hidden; padding: 2px; }
+        .segmented-control label { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 500; text-transform: none; color: var(--md-on-surface-variant); cursor: pointer; border-radius: 20px; transition: all 0.2s; }
+        .segmented-control input[type="radio"] { display: none; }
+        .segmented-control input[type="radio"]:checked + label { background: var(--md-primary); color: var(--md-on-primary); }
+
+        /* --- Buttons --- */
+        .btn { background: transparent; color: var(--md-primary); border: 1px solid var(--md-outline); padding: 10px 16px; border-radius: var(--radius-lg); font-weight: 500; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: center; font-family: inherit; }
+        .btn:hover { background: rgba(168, 199, 250, 0.08); }
+        .btn-filled { background: var(--md-primary); color: var(--md-on-primary); border: none; }
+        .btn-filled:hover { background: #BBD1FA; }
+        .btn-error { background: var(--md-error); color: var(--md-on-error); border: none; }
+
+        /* --- SVG Upload Grid --- */
+        .svg-grid { display: flex; flex-direction: column; gap: 16px; }
+        .state-row { display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; }
+        .state-row span { font-size: 11px; font-weight: 500; color: var(--md-on-surface-variant); text-transform: uppercase; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <!-- STICKY HEADER -->
+        <div class="sticky-header">
+            <!-- NEW: Updated Title -->
+            <h2>ASCII-LATOR</h2>
+            <div class="segmented-control">
+                <input type="radio" name="mode" id="modeAscii" value="ascii" checked>
+                <label for="modeAscii">ASCII Engine</label>
+                <input type="radio" name="mode" id="modeSvg" value="svg">
+                <label for="modeSvg">SVG Engine</label>
+            </div>
+        </div>
+
+        <!-- Media & Playback -->
+        <div class="card">
+            <h3>Media Source</h3>
+            <input type="file" id="mediaInput" accept="video/*,image/*">
+            
+            <div id="playbackControls" class="row hidden" style="margin-top: 8px;">
+                <button id="playPauseBtn" class="btn">Pause</button>
+                <input type="range" id="scrubber" min="0" max="100" value="0" step="0.1" style="flex-grow: 1;">
+            </div>
+        </div>
+
+        <!-- Global Engine Settings -->
+        <div class="card">
+            <h3>Grid & Display</h3>
+            <div class="control-group">
+                <div class="row">
+                    <label>Resolution</label>
+                    <span class="val-display"><span id="resVal">12</span>px</span>
+                </div>
+                <input type="range" id="resolution" min="4" max="50" value="12">
+            </div>
+
+            <div class="control-group" style="margin-top: 8px;">
+                <div class="row"><label>Contrast Overdrive</label></div>
+                <input type="range" id="contrast" min="1" max="5" step="0.1" value="1">
+            </div>
+
+            <div class="row" style="margin-top: 8px;">
+                <div class="control-group" style="flex: 1;">
+                    <label>Background</label>
+                    <input type="color" id="bgColor" value="#050505">
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 4px; gap: 12px;">
+                <label class="row-start" for="forceSquare">
+                    <input type="checkbox" id="forceSquare">
+                    <span style="text-transform: none; font-size: 13px;">Force 1x1 Aspect Ratio</span>
+                </label>
+                <label class="row-start" for="invertColors">
+                    <input type="checkbox" id="invertColors">
+                    <span style="text-transform: none; font-size: 13px;">Invert Luminance Map</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ASCII Specific -->
+        <div id="asciiControls" class="card">
+            <h3>ASCII Parameters</h3>
+            <div class="row">
+                <div class="control-group" style="flex: 1;">
+                    <label>Text Color</label>
+                    <input type="color" id="textColor" value="#A8C7FA">
+                </div>
+                
+                <div class="control-group" style="flex: 1.5;">
+                    <label>ASCII Font</label>
+                    <select id="fontFamily">
+                        <option value="Space Mono" style="font-family: 'Space Mono'">Space Mono</option>
+                        <option value="Roboto Mono" style="font-family: 'Roboto Mono'">Roboto Mono</option>
+                        <option value="Fira Code" style="font-family: 'Fira Code'">Fira Code</option>
+                        <option value="JetBrains Mono" style="font-family: 'JetBrains Mono'">JetBrains Mono</option>
+                        <option value="VT323" style="font-family: 'VT323'">VT323 (Retro)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Custom Symbols / Emojis (Dark to Light)</label>
+                <div class="row">
+                    <input type="text" id="customChars" value="@#S%?*+;:, ">
+                    
+                    <select id="charPreset" title="Choose Preset">
+                        <option value="" disabled selected></option> 
+                        <option value="@#S%?*+;:, ">Blocks (@#S)</option>
+                        <option value="01 ">Binary (01)</option>
+                        <option value="█▓▒░ ">Shades (█▓▒)</option>
+                        <option value="●•· ">Dots (●•·)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- SVG Specific -->
+        <div id="svgControls" class="card hidden">
+            <h3>SVG Parameters</h3>
+            <div class="row">
+                <div class="control-group" style="flex: 1;">
+                    <label>B/W Override Color</label>
+                    <input type="color" id="svgColor" value="#ffffff">
+                </div>
+                <div class="control-group" style="flex: 1;">
+                    <label>Rotation</label>
+                    <select id="rotation">
+                        <option value="0">0°</option>
+                        <option value="90">90°</option>
+                        <option value="180">180°</option>
+                        <option value="270">270°</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 8px;">
+                <div class="control-group" style="flex: 1;">
+                    <div class="row"><label>Min Scale</label></div>
+                    <input type="range" id="minScale" min="0.1" max="1" step="0.1" value="0.5">
+                </div>
+                <div class="control-group" style="flex: 1;">
+                    <div class="row"><label>Max Scale</label></div>
+                    <input type="range" id="maxScale" min="0.5" max="2" step="0.1" value="1.0">
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 8px;">
+                <label>Highlight States (Dark to Light)</label>
+                <div class="svg-grid" id="svgUploads"></div>
+                <button id="addStateBtn" class="btn" style="margin-top: 8px;">+ Add State</button>
+            </div>
+        </div>
+
+        <!-- Export -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3>Export Tools</h3>
+            
+            <div class="control-group" style="margin-bottom: 8px;">
+                <label>Export Resolution</label>
+                <select id="exportResolution">
+                    <option value="1">Screen Size (1x)</option>
+                    <option value="4k">4K UHD (3840px Longest Side)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label class="row-start" for="transparentBg">
+                    <input type="checkbox" id="transparentBg">
+                    <span style="text-transform: none; font-size: 13px;">Transparent Background (PNG/SVG)</span>
+                </label>
+            </div>
+            
+            <div class="row">
+                <button id="exportPngBtn" class="btn" style="flex: 1;">Save .PNG</button>
+                <button id="exportSvgBtn" class="btn" style="flex: 1;">Save .SVG</button>
+            </div>
+            <button id="recordBtn" class="btn btn-filled" style="margin-top: 8px;">Export Full Video (.WebM)</button>
+        </div>
+    </div>
+
+    <div id="workspace">
+        <canvas id="outputCanvas"></canvas>
+    </div>
+
+    <video id="sourceVideo" loop muted playsinline></video>
+    <img id="sourceImage">
+
+    <script>
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const video = document.getElementById('sourceVideo');
+        const img = document.getElementById('sourceImage');
+        
+        let isVideo = false;
+        let mediaReady = false;
+        let currentMode = 'ascii';
+        let isExporting = false; 
+
+        // UI Bindings
+        const controls = {
+            res: document.getElementById('resolution'),
+            resVal: document.getElementById('resVal'),
+            square: document.getElementById('forceSquare'),
+            invert: document.getElementById('invertColors'),
+            contrast: document.getElementById('contrast'),
+            bgCol: document.getElementById('bgColor'),
+            transparentBg: document.getElementById('transparentBg'),
+            txtCol: document.getElementById('textColor'),
+            
+            customChars: document.getElementById('customChars'),
+            charPreset: document.getElementById('charPreset'),
+            fontFamily: document.getElementById('fontFamily'), 
+            
+            minS: document.getElementById('minScale'),
+            maxS: document.getElementById('maxScale'),
+            rot: document.getElementById('rotation'),
+            svgCol: document.getElementById('svgColor'),
+            playbackPanel: document.getElementById('playbackControls'),
+            playBtn: document.getElementById('playPauseBtn'),
+            scrubber: document.getElementById('scrubber'),
+            addStateBtn: document.getElementById('addStateBtn'),
+            
+            exportResolution: document.getElementById('exportResolution')
+        };
+
+        controls.res.oninput = (e) => controls.resVal.textContent = e.target.value;
+
+        controls.charPreset.addEventListener('change', (e) => {
+            controls.customChars.value = e.target.value;
+            controls.charPreset.selectedIndex = 0; 
+        });
+
+        controls.fontFamily.addEventListener('change', (e) => {
+            controls.customChars.style.fontFamily = `'${e.target.value}', monospace`;
+        });
+
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentMode = e.target.value;
+                document.getElementById('asciiControls').classList.toggle('hidden', currentMode !== 'ascii');
+                document.getElementById('svgControls').classList.toggle('hidden', currentMode === 'ascii');
+            });
+        });
+
+        const svgRawData = [
+            '<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="white"/></svg>',
+            '<svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" fill="white"/></svg>',
+            '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="10" fill="white"/></svg>'
+        ];
+        
+        const svgImages = [];
+
+        function applyColorToSVG(rawSvg, targetColor) {
+            let updated = rawSvg.replace(/(fill|stroke)\s*=\s*["'](?:#000000|#000|black|#ffffff|#fff|white)["']/gi, `$1="${targetColor}"`);
+            updated = updated.replace(/(fill|stroke)\s*:\s*(?:#000000|#000|black|#ffffff|#fff|white)\b/gi, `$1: ${targetColor}`);
+            return updated;
+        }
+
+        function updateAllCachedSVGs() {
+            const overrideColor = controls.svgCol.value;
+            svgRawData.forEach((rawSvg, index) => {
+                if(!rawSvg) return;
+                const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
+                const blob = new Blob([tintedSvg], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(blob);
+                const image = new Image();
+                image.onload = () => { 
+                    svgImages[index] = image; 
+                    URL.revokeObjectURL(url);
+                };
+                image.src = url;
+            });
+        }
+
+        const uploadContainer = document.getElementById('svgUploads');
+        function createUploadUI(index) {
+            const row = document.createElement('div');
+            row.className = 'state-row';
+            
+            const label = document.createElement('span');
+            label.textContent = `State ${index + 1}`;
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.svg';
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    svgRawData[index] = event.target.result;
+                    updateAllCachedSVGs();
+                };
+                reader.readAsText(file);
+            });
+            
+            row.appendChild(label);
+            row.appendChild(input);
+            uploadContainer.appendChild(row);
+        }
+
+        svgRawData.forEach((_, i) => createUploadUI(i));
+        updateAllCachedSVGs();
+
+        controls.addStateBtn.onclick = () => {
+            const newIndex = svgRawData.length;
+            svgRawData.push(`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="5" fill="white"/></svg>`);
+            svgImages.push(null);
+            createUploadUI(newIndex);
+            updateAllCachedSVGs();
+        };
+
+        controls.svgCol.addEventListener('input', updateAllCachedSVGs);
+
+        document.getElementById('mediaInput').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            
+            mediaReady = false;
+            if (file.type.startsWith('video/')) {
+                isVideo = true;
+                video.src = url;
+                controls.playbackPanel.classList.remove('hidden');
+                video.onloadedmetadata = () => controls.scrubber.max = video.duration;
+                video.onloadeddata = () => { mediaReady = true; video.play(); controls.playBtn.textContent = 'Pause'; };
+            } else {
+                isVideo = false;
+                controls.playbackPanel.classList.add('hidden');
+                img.src = url;
+                img.onload = () => { mediaReady = true; };
+            }
+        };
+
+        controls.playBtn.onclick = () => {
+            if (!isVideo) return;
+            if (video.paused) { video.play(); controls.playBtn.textContent = 'Pause'; } 
+            else { video.pause(); controls.playBtn.textContent = 'Play'; }
+        };
+
+        controls.scrubber.oninput = (e) => { if (isVideo) video.currentTime = e.target.value; };
+        
+        video.ontimeupdate = () => { 
+            if (!video.paused && !isExporting) controls.scrubber.value = video.currentTime; 
+            if (isExporting) {
+                const progress = Math.min(100, Math.floor((video.currentTime / video.duration) * 100));
+                recordBtn.textContent = `EXPORTING... ${progress}% (Click to Cancel)`;
+            }
+        };
+
+        video.onended = () => {
+            if (isExporting && recorder) {
+                recorder.stop(); 
+            } else if (!isExporting) {
+                video.play(); 
+            }
+        };
+
+        function getGridData() {
+            const source = isVideo ? video : img;
+            let srcW = isVideo ? source.videoWidth : source.naturalWidth;
+            let srcH = isVideo ? source.videoHeight : source.naturalHeight;
+            let sx = 0, sy = 0;
+
+            if (controls.square.checked) {
+                const minDim = Math.min(srcW, srcH);
+                sx = (srcW - minDim) / 2;
+                sy = (srcH - minDim) / 2;
+                srcW = minDim; srcH = minDim;
+                canvas.width = 800; canvas.height = 800;
+            } else {
+                canvas.width = srcW || 800; canvas.height = srcH || 800;
+            }
+
+            const res = parseInt(controls.res.value);
+            const cols = Math.floor(canvas.width / res);
+            const rows = Math.floor(canvas.height / res);
+
+            const sCanvas = document.createElement('canvas');
+            sCanvas.width = cols; sCanvas.height = rows;
+            const sCtx = sCanvas.getContext('2d');
+            sCtx.drawImage(source, sx, sy, srcW, srcH, 0, 0, cols, rows);
+            
+            return { cols, rows, res, imgData: sCtx.getImageData(0, 0, cols, rows).data };
+        }
+
+        function render() {
+            if (!mediaReady) {
+                requestAnimationFrame(render);
+                return;
+            }
+
+            const { cols, rows, res, imgData } = getGridData();
+
+            if (controls.transparentBg.checked) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = controls.bgCol.value;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const invert = controls.invert.checked;
+            const contrastVal = parseFloat(controls.contrast.value);
+            const rot = parseInt(controls.rot.value) * (Math.PI / 180);
+
+            const charArray = [...controls.customChars.value];
+
+            if (currentMode === 'ascii') {
+                ctx.fillStyle = controls.txtCol.value;
+                const activeFont = controls.fontFamily.value;
+                ctx.font = `${res}px '${activeFont}', monospace`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+            }
+
+            const stateCount = svgRawData.length;
+            const minS = parseFloat(controls.minS.value);
+            const maxS = parseFloat(controls.maxS.value);
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4;
+                    let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                    lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                    lum = Math.max(0, Math.min(255, lum));
+                    if (invert) lum = 255 - lum;
+
+                    const normalized = lum / 255;
+
+                    if (currentMode === 'ascii' && charArray.length > 0) {
+                        const charIdx = Math.floor(normalized * (charArray.length - 1));
+                        const char = charArray[charArray.length - 1 - charIdx];
+                        ctx.fillText(char, x * res + res/2, y * res + res/2);
+                    } else if (currentMode === 'svg') {
+                        const state = Math.floor(normalized * (stateCount - 0.001)); 
+                        const scaleModifier = minS + (normalized * (maxS - minS));
+                        const currentSize = res * scaleModifier;
+                        const svgToDraw = svgImages[state];
+                        
+                        if (svgToDraw) {
+                            ctx.save();
+                            ctx.translate(x * res + res / 2, y * res + res / 2);
+                            ctx.rotate(rot);
+                            ctx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
+                            ctx.restore();
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+        // --- UPDATED EXPORTS FOR ASCII-LATOR BRANDING ---
+
+        document.getElementById('exportPngBtn').onclick = () => {
+            if (!mediaReady) return;
+            const { cols, rows, res, imgData } = getGridData();
+            
+            let scaleMultiplier = 1;
+            if (controls.exportResolution.value === '4k') {
+                const maxCurrentDimension = Math.max(cols * res, rows * res);
+                scaleMultiplier = 3840 / maxCurrentDimension;
+            }
+
+            const exportRes = res * scaleMultiplier;
+            const exportW = cols * exportRes;
+            const exportH = rows * exportRes;
+
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = exportW;
+            exportCanvas.height = exportH;
+            const eCtx = exportCanvas.getContext('2d');
+
+            if (!controls.transparentBg.checked) {
+                eCtx.fillStyle = controls.bgCol.value;
+                eCtx.fillRect(0, 0, exportW, exportH);
+            }
+
+            const invert = controls.invert.checked;
+            const contrastVal = parseFloat(controls.contrast.value);
+            const rot = parseInt(controls.rot.value) * (Math.PI / 180);
+            const charArray = [...controls.customChars.value];
+
+            if (currentMode === 'ascii') {
+                eCtx.fillStyle = controls.txtCol.value;
+                const activeFont = controls.fontFamily.value;
+                eCtx.font = `${exportRes}px '${activeFont}', monospace`; 
+                eCtx.textAlign = 'center';
+                eCtx.textBaseline = 'middle';
+            }
+
+            const stateCount = svgRawData.length;
+            const minS = parseFloat(controls.minS.value);
+            const maxS = parseFloat(controls.maxS.value);
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4;
+                    let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                    lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                    lum = Math.max(0, Math.min(255, lum));
+                    if (invert) lum = 255 - lum;
+
+                    const normalized = lum / 255;
+
+                    if (currentMode === 'ascii' && charArray.length > 0) {
+                        const charIdx = Math.floor(normalized * (charArray.length - 1));
+                        const char = charArray[charArray.length - 1 - charIdx];
+                        eCtx.fillText(char, x * exportRes + exportRes/2, y * exportRes + exportRes/2);
+                    } else if (currentMode === 'svg') {
+                        const state = Math.floor(normalized * (stateCount - 0.001)); 
+                        const scaleModifier = minS + (normalized * (maxS - minS));
+                        const currentSize = exportRes * scaleModifier;
+                        const svgToDraw = svgImages[state];
+                        
+                        if (svgToDraw) {
+                            eCtx.save();
+                            eCtx.translate(x * exportRes + exportRes / 2, y * exportRes + exportRes / 2);
+                            eCtx.rotate(rot);
+                            eCtx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
+                            eCtx.restore();
+                        }
+                    }
+                }
+            }
+
+            const link = document.createElement('a');
+            // NEW NAME:
+            link.download = `asciilator_${Date.now()}_${controls.exportResolution.value}.png`;
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+        };
+
+        document.getElementById('exportSvgBtn').onclick = () => {
+            if (!mediaReady) return;
+            const { cols, rows, res, imgData } = getGridData();
+            
+            let scaleMultiplier = 1;
+            if (controls.exportResolution.value === '4k') {
+                const maxCurrentDimension = Math.max(cols * res, rows * res);
+                scaleMultiplier = 3840 / maxCurrentDimension;
+            }
+
+            const exportRes = res * scaleMultiplier;
+            const w = cols * exportRes;
+            const h = rows * exportRes;
+            
+            let svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+            
+            svgMarkup += `
+                <defs>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&amp;family=JetBrains+Mono:wght@400;700&amp;family=Roboto+Mono:wght@400;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;family=VT323&amp;display=swap');
+                    </style>
+                </defs>
+            `;
+
+            if (!controls.transparentBg.checked) {
+                svgMarkup += `<rect width="${w}" height="${h}" fill="${controls.bgCol.value}" />`;
+            }
+
+            const invert = controls.invert.checked;
+            const contrastVal = parseFloat(controls.contrast.value);
+            const charArray = [...controls.customChars.value];
+            const activeFont = controls.fontFamily.value;
+
+            if (currentMode === 'ascii' && charArray.length > 0) {
+                
+                svgMarkup += `<g fill="${controls.txtCol.value}" font-family="'${activeFont}', monospace" font-size="${exportRes}px" text-anchor="middle" dominant-baseline="central">`;
+                
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
+                        const charIdx = Math.floor((lum / 255) * (charArray.length - 1));
+                        const char = charArray[charArray.length - 1 - charIdx];
+                        const cleanChar = char.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        if (cleanChar.trim() !== "") {
+                            svgMarkup += `<text x="${x * exportRes + exportRes/2}" y="${y * exportRes + exportRes/2}">${cleanChar}</text>`;
+                        }
+                    }
+                }
+                svgMarkup += `</g>`;
+            } else if (currentMode === 'svg') {
+                const stateCount = svgRawData.length;
+                const minS = parseFloat(controls.minS.value);
+                const maxS = parseFloat(controls.maxS.value);
+                const rot = parseInt(controls.rot.value);
+                const overrideColor = controls.svgCol.value;
+                
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
+
+                        const normalized = lum / 255;
+                        const state = Math.floor(normalized * (stateCount - 0.001)); 
+                        const scaleModifier = minS + (normalized * (maxS - minS));
+                        const currentSize = exportRes * scaleModifier;
+                        
+                        const rawSvg = svgRawData[state];
+                        if (rawSvg) {
+                            const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
+                            const innerContentMatch = tintedSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
+                            const innerContent = innerContentMatch ? innerContentMatch[1] : '';
+                            const cx = x * exportRes + exportRes / 2;
+                            const cy = y * exportRes + exportRes / 2;
+                            
+                            svgMarkup += `<g transform="translate(${cx}, ${cy}) rotate(${rot})">
+                                <svg x="${-currentSize/2}" y="${-currentSize/2}" width="${currentSize}" height="${currentSize}" viewBox="0 0 100 100">
+                                    ${innerContent}
+                                </svg>
+                            </g>`;
+                        }
+                    }
+                }
+            }
+
+            svgMarkup += `</svg>`;
+            const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+            const link = document.createElement('a');
+            // NEW NAME:
+            link.download = `asciilator_${Date.now()}_${controls.exportResolution.value}.svg`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        };
+
+        let recorder, chunks = [];
+        const recordBtn = document.getElementById('recordBtn');
+        
+        recordBtn.onclick = () => {
+            if (!mediaReady || !isVideo) {
+                alert("Please load a video first to use this feature.");
+                return;
+            }
+
+            if (isExporting) {
+                recorder.stop();
+                video.pause();
+                return;
+            }
+
+            isExporting = true;
+            video.loop = false; 
+            video.pause();
+            video.currentTime = 0; 
+
+            video.onseeked = function startExportProcess() {
+                video.onseeked = null; 
+                
+                chunks = [];
+                const stream = canvas.captureStream(30); 
+                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                
+                recorder.ondataavailable = e => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    // NEW NAME:
+                    a.download = `asciilator_render_${Date.now()}.webm`;
+                    a.click();
+                    
+                    isExporting = false;
+                    video.loop = true; 
+                    recordBtn.textContent = "Export Full Video (.WebM)";
+                    recordBtn.classList.remove('btn-error');
+                    recordBtn.classList.add('btn-filled');
+                    controls.scrubber.value = video.currentTime;
+                };
+                
+                recorder.start();
+                video.play();
+                
+                recordBtn.classList.remove('btn-filled');
+                recordBtn.classList.add('btn-error');
+            };
+        };
+    </script>
+</body>
+</html>
