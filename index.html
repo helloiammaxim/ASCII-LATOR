@@ -37,7 +37,6 @@
             overflow: hidden;
         }
 
-        /* --- Layout --- */
         #sidebar {
             width: 380px;
             background: var(--md-surface);
@@ -84,8 +83,6 @@
 
         video, img { display: none; }
 
-        /* --- Typography --- */
-        /* NEW: Retro hi-tech branding for the main logo */
         h2 { 
             margin: 0; 
             font-size: 22px; 
@@ -100,13 +97,11 @@
         
         .val-display { font-family: monospace; color: var(--md-primary); font-size: 12px; }
 
-        /* --- Cards & Containers --- */
         .card { background: var(--md-surface-container); border: 1px solid var(--md-outline); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
         .control-group { display: flex; flex-direction: column; gap: 8px; }
         .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
         .row-start { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 
-        /* --- Custom Inputs --- */
         input[type="range"] { width: 100%; accent-color: var(--md-primary); cursor: pointer; }
         
         input[type="text"] { 
@@ -120,10 +115,7 @@
             box-sizing: border-box;
         }
 
-        #customChars {
-            font-family: 'Space Mono', monospace; 
-            letter-spacing: 2px;
-        }
+        #customChars { font-family: 'Space Mono', monospace; letter-spacing: 2px; }
 
         select { 
             width: 100%; 
@@ -143,81 +135,31 @@
             background-position: right 4px center;
         }
 
-        #charPreset {
-            width: 44px;
-            padding: 8px;
-            background-position: center; 
-            color: transparent; 
-        }
-        #charPreset option {
-            color: var(--md-on-surface); 
-        }
+        #charPreset { width: 44px; padding: 8px; background-position: center; color: transparent; }
+        #charPreset option { color: var(--md-on-surface); }
         
         input[type="color"] { width: 100%; height: 36px; border: 1px solid var(--md-outline); border-radius: var(--radius-sm); background: var(--md-surface); cursor: pointer; padding: 2px; }
         
-        input[type="file"] {
-            color: var(--md-on-surface-variant);
-            padding: 0;
-            background: transparent;
-            border: none;
-            font-size: 12px;
-            width: 100%;
-        }
-        input[type="file"]::file-selector-button {
-            background: var(--md-primary);
-            color: var(--md-on-primary);
-            border: none;
-            padding: 6px 16px;
-            border-radius: 100px;
-            margin-right: 12px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
+        input[type="file"] { color: var(--md-on-surface-variant); padding: 0; background: transparent; border: none; font-size: 12px; width: 100%; }
+        input[type="file"]::file-selector-button { background: var(--md-primary); color: var(--md-on-primary); border: none; padding: 6px 16px; border-radius: 100px; margin-right: 12px; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; transition: background 0.2s; }
         input[type="file"]::file-selector-button:hover { background: #BBD1FA; }
 
-        input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--md-outline);
-            border-radius: 50%; 
-            margin: 0;
-            display: grid;
-            place-content: center;
-            cursor: pointer;
-            transition: 0.2s all;
-            background: transparent;
-        }
-        input[type="checkbox"]::before {
-            content: "";
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--md-on-primary);
-            transform: scale(0);
-            transition: 0.2s transform cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 2px solid var(--md-outline); border-radius: 50%; margin: 0; display: grid; place-content: center; cursor: pointer; transition: 0.2s all; background: transparent; }
+        input[type="checkbox"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background-color: var(--md-on-primary); transform: scale(0); transition: 0.2s transform cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         input[type="checkbox"]:checked { background-color: var(--md-primary); border-color: var(--md-primary); }
         input[type="checkbox"]:checked::before { transform: scale(1); }
 
-        /* --- Segmented Button --- */
         .segmented-control { display: flex; background: var(--md-surface-container); border: 1px solid var(--md-outline); border-radius: var(--radius-lg); overflow: hidden; padding: 2px; }
-        .segmented-control label { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 500; text-transform: none; color: var(--md-on-surface-variant); cursor: pointer; border-radius: 20px; transition: all 0.2s; }
+        .segmented-control label { flex: 1; text-align: center; padding: 8px 0; font-size: 12px; font-weight: 500; text-transform: none; color: var(--md-on-surface-variant); cursor: pointer; border-radius: 20px; transition: all 0.2s; }
         .segmented-control input[type="radio"] { display: none; }
         .segmented-control input[type="radio"]:checked + label { background: var(--md-primary); color: var(--md-on-primary); }
 
-        /* --- Buttons --- */
         .btn { background: transparent; color: var(--md-primary); border: 1px solid var(--md-outline); padding: 10px 16px; border-radius: var(--radius-lg); font-weight: 500; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: center; font-family: inherit; }
         .btn:hover { background: rgba(168, 199, 250, 0.08); }
         .btn-filled { background: var(--md-primary); color: var(--md-on-primary); border: none; }
         .btn-filled:hover { background: #BBD1FA; }
         .btn-error { background: var(--md-error); color: var(--md-on-error); border: none; }
 
-        /* --- SVG Upload Grid --- */
         .svg-grid { display: flex; flex-direction: column; gap: 16px; }
         .state-row { display: grid; grid-template-columns: 50px 1fr; align-items: center; gap: 12px; }
         .state-row span { font-size: 11px; font-weight: 500; color: var(--md-on-surface-variant); text-transform: uppercase; }
@@ -227,16 +169,28 @@
 </head>
 <body>
 
+    <!-- NEW: Hidden SVG filter that mathematically fuses the dots -->
+    <svg style="visibility: hidden; position: absolute;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" id="gooBlur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+            </filter>
+        </defs>
+    </svg>
+
     <div id="sidebar">
         <!-- STICKY HEADER -->
         <div class="sticky-header">
-            <!-- NEW: Updated Title -->
             <h2>ASCII-LATOR</h2>
             <div class="segmented-control">
                 <input type="radio" name="mode" id="modeAscii" value="ascii" checked>
-                <label for="modeAscii">ASCII Engine</label>
+                <label for="modeAscii">ASCII</label>
                 <input type="radio" name="mode" id="modeSvg" value="svg">
-                <label for="modeSvg">SVG Engine</label>
+                <label for="modeSvg">SVG Shapes</label>
+                <!-- NEW: Gooey Engine Toggle -->
+                <input type="radio" name="mode" id="modeGooey" value="gooey">
+                <label for="modeGooey">Gooey Fused</label>
             </div>
         </div>
 
@@ -294,7 +248,6 @@
                     <label>Text Color</label>
                     <input type="color" id="textColor" value="#A8C7FA">
                 </div>
-                
                 <div class="control-group" style="flex: 1.5;">
                     <label>ASCII Font</label>
                     <select id="fontFamily">
@@ -306,12 +259,10 @@
                     </select>
                 </div>
             </div>
-            
             <div class="control-group">
                 <label>Custom Symbols / Emojis (Dark to Light)</label>
                 <div class="row">
                     <input type="text" id="customChars" value="@#S%?*+;:, ">
-                    
                     <select id="charPreset" title="Choose Preset">
                         <option value="" disabled selected></option> 
                         <option value="@#S%?*+;:, ">Blocks (@#S)</option>
@@ -357,6 +308,27 @@
                 <label>Highlight States (Dark to Light)</label>
                 <div class="svg-grid" id="svgUploads"></div>
                 <button id="addStateBtn" class="btn" style="margin-top: 8px;">+ Add State</button>
+            </div>
+        </div>
+
+        <!-- NEW: Gooey Engine Controls -->
+        <div id="gooeyControls" class="card hidden">
+            <h3>Gooey Parameters</h3>
+            <div class="row">
+                <div class="control-group" style="flex: 1;">
+                    <label>Liquid Color</label>
+                    <input type="color" id="gooColor" value="#A8C7FA">
+                </div>
+                <div class="control-group" style="flex: 1;">
+                    <div class="row"><label>Fusion Amount</label></div>
+                    <!-- Controls how heavily the dots blur and fuse -->
+                    <input type="range" id="gooFusion" min="1" max="30" value="12">
+                </div>
+            </div>
+            <div class="control-group" style="margin-top: 8px;">
+                <div class="row"><label>Dot Scale Multiplier</label></div>
+                <!-- Controls the base size of the dots before they begin to fuse -->
+                <input type="range" id="gooScale" min="0.5" max="3" step="0.1" value="1.5">
             </div>
         </div>
 
@@ -424,15 +396,25 @@
             maxS: document.getElementById('maxScale'),
             rot: document.getElementById('rotation'),
             svgCol: document.getElementById('svgColor'),
+            addStateBtn: document.getElementById('addStateBtn'),
+
+            // NEW: Bindings for Gooey Mode
+            gooColor: document.getElementById('gooColor'),
+            gooFusion: document.getElementById('gooFusion'),
+            gooScale: document.getElementById('gooScale'),
+            
             playbackPanel: document.getElementById('playbackControls'),
             playBtn: document.getElementById('playPauseBtn'),
             scrubber: document.getElementById('scrubber'),
-            addStateBtn: document.getElementById('addStateBtn'),
-            
             exportResolution: document.getElementById('exportResolution')
         };
 
         controls.res.oninput = (e) => controls.resVal.textContent = e.target.value;
+
+        // NEW: Real-time update of the SVG Filter Blur amount
+        controls.gooFusion.addEventListener('input', (e) => {
+            document.getElementById('gooBlur').setAttribute('stdDeviation', e.target.value);
+        });
 
         controls.charPreset.addEventListener('change', (e) => {
             controls.customChars.value = e.target.value;
@@ -447,7 +429,9 @@
             radio.addEventListener('change', (e) => {
                 currentMode = e.target.value;
                 document.getElementById('asciiControls').classList.toggle('hidden', currentMode !== 'ascii');
-                document.getElementById('svgControls').classList.toggle('hidden', currentMode === 'ascii');
+                document.getElementById('svgControls').classList.toggle('hidden', currentMode !== 'svg');
+                // NEW: Show Gooey controls
+                document.getElementById('gooeyControls').classList.toggle('hidden', currentMode !== 'gooey');
             });
         });
 
@@ -456,7 +440,6 @@
             '<svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" fill="white"/></svg>',
             '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="10" fill="white"/></svg>'
         ];
-        
         const svgImages = [];
 
         function applyColorToSVG(rawSvg, targetColor) {
@@ -485,10 +468,8 @@
         function createUploadUI(index) {
             const row = document.createElement('div');
             row.className = 'state-row';
-            
             const label = document.createElement('span');
             label.textContent = `State ${index + 1}`;
-            
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.svg';
@@ -502,7 +483,6 @@
                 };
                 reader.readAsText(file);
             });
-            
             row.appendChild(label);
             row.appendChild(input);
             uploadContainer.appendChild(row);
@@ -525,7 +505,6 @@
             const file = e.target.files[0];
             if (!file) return;
             const url = URL.createObjectURL(file);
-            
             mediaReady = false;
             if (file.type.startsWith('video/')) {
                 isVideo = true;
@@ -558,11 +537,8 @@
         };
 
         video.onended = () => {
-            if (isExporting && recorder) {
-                recorder.stop(); 
-            } else if (!isExporting) {
-                video.play(); 
-            }
+            if (isExporting && recorder) recorder.stop(); 
+            else if (!isExporting) video.play(); 
         };
 
         function getGridData() {
@@ -593,6 +569,10 @@
             return { cols, rows, res, imgData: sCtx.getImageData(0, 0, cols, rows).data };
         }
 
+        // --- NEW: Offscreen Canvas explicitly for Fusing the Gooey dots ---
+        let gooCanvas = document.createElement('canvas');
+        let gooCtx = gooCanvas.getContext('2d');
+
         function render() {
             if (!mediaReady) {
                 requestAnimationFrame(render);
@@ -601,6 +581,7 @@
 
             const { cols, rows, res, imgData } = getGridData();
 
+            // Setup Main Canvas Background
             if (controls.transparentBg.checked) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             } else {
@@ -610,48 +591,92 @@
 
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
-            const rot = parseInt(controls.rot.value) * (Math.PI / 180);
 
-            const charArray = [...controls.customChars.value];
+            // --- GOOEY RENDERING LOGIC ---
+            if (currentMode === 'gooey') {
+                // Ensure temporary gooey canvas matches main canvas size exactly
+                if (gooCanvas.width !== canvas.width || gooCanvas.height !== canvas.height) {
+                    gooCanvas.width = canvas.width;
+                    gooCanvas.height = canvas.height;
+                }
+                
+                // We MUST clear it to fully transparent so the SVG filter functions correctly
+                gooCtx.clearRect(0, 0, gooCanvas.width, gooCanvas.height);
+                
+                const gooScale = parseFloat(controls.gooScale.value);
+                gooCtx.fillStyle = controls.gooColor.value;
 
-            if (currentMode === 'ascii') {
-                ctx.fillStyle = controls.txtCol.value;
-                const activeFont = controls.fontFamily.value;
-                ctx.font = `${res}px '${activeFont}', monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-            }
+                // Draw all circles onto the transparent offscreen canvas
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
 
-            const stateCount = svgRawData.length;
-            const minS = parseFloat(controls.minS.value);
-            const maxS = parseFloat(controls.maxS.value);
-
-            for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    const i = (y * cols + x) * 4;
-                    let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
-                    lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
-                    lum = Math.max(0, Math.min(255, lum));
-                    if (invert) lum = 255 - lum;
-
-                    const normalized = lum / 255;
-
-                    if (currentMode === 'ascii' && charArray.length > 0) {
-                        const charIdx = Math.floor(normalized * (charArray.length - 1));
-                        const char = charArray[charArray.length - 1 - charIdx];
-                        ctx.fillText(char, x * res + res/2, y * res + res/2);
-                    } else if (currentMode === 'svg') {
-                        const state = Math.floor(normalized * (stateCount - 0.001)); 
-                        const scaleModifier = minS + (normalized * (maxS - minS));
-                        const currentSize = res * scaleModifier;
-                        const svgToDraw = svgImages[state];
+                        const normalized = lum / 255;
                         
-                        if (svgToDraw) {
-                            ctx.save();
-                            ctx.translate(x * res + res / 2, y * res + res / 2);
-                            ctx.rotate(rot);
-                            ctx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
-                            ctx.restore();
+                        // We filter out entirely dark areas so we don't draw microscopic invisible dots
+                        if (normalized > 0.05) {
+                            const currentSize = (res * gooScale) * normalized;
+                            gooCtx.beginPath();
+                            gooCtx.arc(x * res + res / 2, y * res + res / 2, currentSize / 2, 0, Math.PI * 2);
+                            gooCtx.fill();
+                        }
+                    }
+                }
+
+                // Activate the SVG filter mathematically forcing the liquid fusion
+                ctx.filter = 'url(#goo)';
+                // Draw the offscreen canvas onto our main canvas
+                ctx.drawImage(gooCanvas, 0, 0);
+                // Turn filter off so it doesn't break future frames
+                ctx.filter = 'none';
+
+            } else {
+                // --- ASCII & SVG RENDERING LOGIC ---
+                const rot = parseInt(controls.rot.value) * (Math.PI / 180);
+                const charArray = [...controls.customChars.value];
+
+                if (currentMode === 'ascii') {
+                    ctx.fillStyle = controls.txtCol.value;
+                    ctx.font = `${res}px '${controls.fontFamily.value}', monospace`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                }
+
+                const stateCount = svgRawData.length;
+                const minS = parseFloat(controls.minS.value);
+                const maxS = parseFloat(controls.maxS.value);
+
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
+
+                        const normalized = lum / 255;
+
+                        if (currentMode === 'ascii' && charArray.length > 0) {
+                            const charIdx = Math.floor(normalized * (charArray.length - 1));
+                            const char = charArray[charArray.length - 1 - charIdx];
+                            ctx.fillText(char, x * res + res/2, y * res + res/2);
+                        } else if (currentMode === 'svg') {
+                            const state = Math.floor(normalized * (stateCount - 0.001)); 
+                            const scaleModifier = minS + (normalized * (maxS - minS));
+                            const currentSize = res * scaleModifier;
+                            const svgToDraw = svgImages[state];
+                            
+                            if (svgToDraw) {
+                                ctx.save();
+                                ctx.translate(x * res + res / 2, y * res + res / 2);
+                                ctx.rotate(rot);
+                                ctx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
+                                ctx.restore();
+                            }
                         }
                     }
                 }
@@ -660,7 +685,7 @@
         }
         requestAnimationFrame(render);
 
-        // --- UPDATED EXPORTS FOR ASCII-LATOR BRANDING ---
+        // --- EXPORT LOGIC ---
 
         document.getElementById('exportPngBtn').onclick = () => {
             if (!mediaReady) return;
@@ -688,54 +713,97 @@
 
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
-            const rot = parseInt(controls.rot.value) * (Math.PI / 180);
-            const charArray = [...controls.customChars.value];
+            
+            // GOOEY HIGH-RES PNG LOGIC
+            if (currentMode === 'gooey') {
+                const exportGooCanvas = document.createElement('canvas');
+                exportGooCanvas.width = exportW;
+                exportGooCanvas.height = exportH;
+                const egCtx = exportGooCanvas.getContext('2d');
+                
+                const gooScale = parseFloat(controls.gooScale.value);
+                egCtx.fillStyle = controls.gooColor.value;
 
-            if (currentMode === 'ascii') {
-                eCtx.fillStyle = controls.txtCol.value;
-                const activeFont = controls.fontFamily.value;
-                eCtx.font = `${exportRes}px '${activeFont}', monospace`; 
-                eCtx.textAlign = 'center';
-                eCtx.textBaseline = 'middle';
-            }
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
 
-            const stateCount = svgRawData.length;
-            const minS = parseFloat(controls.minS.value);
-            const maxS = parseFloat(controls.maxS.value);
+                        const normalized = lum / 255;
+                        if (normalized > 0.05) {
+                            const currentSize = (exportRes * gooScale) * normalized;
+                            egCtx.beginPath();
+                            egCtx.arc(x * exportRes + exportRes / 2, y * exportRes + exportRes / 2, currentSize / 2, 0, Math.PI * 2);
+                            egCtx.fill();
+                        }
+                    }
+                }
 
-            for (let y = 0; y < rows; y++) {
-                for (let x = 0; x < cols; x++) {
-                    const i = (y * cols + x) * 4;
-                    let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
-                    lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
-                    lum = Math.max(0, Math.min(255, lum));
-                    if (invert) lum = 255 - lum;
+                // To ensure 4K gooey looks identical to the preview, we must temporarily scale up the SVG blur parameter
+                const gooBlurElement = document.getElementById('gooBlur');
+                const originalFusion = gooBlurElement.getAttribute('stdDeviation');
+                const scaledFusion = originalFusion * scaleMultiplier;
+                
+                gooBlurElement.setAttribute('stdDeviation', scaledFusion);
+                eCtx.filter = 'url(#goo)';
+                eCtx.drawImage(exportGooCanvas, 0, 0);
+                eCtx.filter = 'none';
+                
+                // Revert SVG filter back to preview resolution
+                gooBlurElement.setAttribute('stdDeviation', originalFusion);
 
-                    const normalized = lum / 255;
+            } else {
+                // STANDARD HIGH-RES PNG LOGIC
+                const rot = parseInt(controls.rot.value) * (Math.PI / 180);
+                const charArray = [...controls.customChars.value];
 
-                    if (currentMode === 'ascii' && charArray.length > 0) {
-                        const charIdx = Math.floor(normalized * (charArray.length - 1));
-                        const char = charArray[charArray.length - 1 - charIdx];
-                        eCtx.fillText(char, x * exportRes + exportRes/2, y * exportRes + exportRes/2);
-                    } else if (currentMode === 'svg') {
-                        const state = Math.floor(normalized * (stateCount - 0.001)); 
-                        const scaleModifier = minS + (normalized * (maxS - minS));
-                        const currentSize = exportRes * scaleModifier;
-                        const svgToDraw = svgImages[state];
-                        
-                        if (svgToDraw) {
-                            eCtx.save();
-                            eCtx.translate(x * exportRes + exportRes / 2, y * exportRes + exportRes / 2);
-                            eCtx.rotate(rot);
-                            eCtx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
-                            eCtx.restore();
+                if (currentMode === 'ascii') {
+                    eCtx.fillStyle = controls.txtCol.value;
+                    eCtx.font = `${exportRes}px '${controls.fontFamily.value}', monospace`; 
+                    eCtx.textAlign = 'center';
+                    eCtx.textBaseline = 'middle';
+                }
+
+                const stateCount = svgRawData.length;
+                const minS = parseFloat(controls.minS.value);
+                const maxS = parseFloat(controls.maxS.value);
+
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                        lum = Math.max(0, Math.min(255, lum));
+                        if (invert) lum = 255 - lum;
+
+                        const normalized = lum / 255;
+
+                        if (currentMode === 'ascii' && charArray.length > 0) {
+                            const charIdx = Math.floor(normalized * (charArray.length - 1));
+                            const char = charArray[charArray.length - 1 - charIdx];
+                            eCtx.fillText(char, x * exportRes + exportRes/2, y * exportRes + exportRes/2);
+                        } else if (currentMode === 'svg') {
+                            const state = Math.floor(normalized * (stateCount - 0.001)); 
+                            const scaleModifier = minS + (normalized * (maxS - minS));
+                            const currentSize = exportRes * scaleModifier;
+                            const svgToDraw = svgImages[state];
+                            
+                            if (svgToDraw) {
+                                eCtx.save();
+                                eCtx.translate(x * exportRes + exportRes / 2, y * exportRes + exportRes / 2);
+                                eCtx.rotate(rot);
+                                eCtx.drawImage(svgToDraw, -currentSize / 2, -currentSize / 2, currentSize, currentSize);
+                                eCtx.restore();
+                            }
                         }
                     }
                 }
             }
 
             const link = document.createElement('a');
-            // NEW NAME:
             link.download = `asciilator_${Date.now()}_${controls.exportResolution.value}.png`;
             link.href = exportCanvas.toDataURL('image/png');
             link.click();
@@ -771,35 +839,23 @@
 
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
-            const charArray = [...controls.customChars.value];
-            const activeFont = controls.fontFamily.value;
+            
+            // NEW: GOOEY SVG EXPORT
+            if (currentMode === 'gooey') {
+                const gooScale = parseFloat(controls.gooScale.value);
+                const originalFusion = controls.gooFusion.value;
+                const scaledFusion = originalFusion * scaleMultiplier;
 
-            if (currentMode === 'ascii' && charArray.length > 0) {
-                
-                svgMarkup += `<g fill="${controls.txtCol.value}" font-family="'${activeFont}', monospace" font-size="${exportRes}px" text-anchor="middle" dominant-baseline="central">`;
-                
-                for (let y = 0; y < rows; y++) {
-                    for (let x = 0; x < cols; x++) {
-                        const i = (y * cols + x) * 4;
-                        let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
-                        lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
-                        lum = Math.max(0, Math.min(255, lum));
-                        if (invert) lum = 255 - lum;
-                        const charIdx = Math.floor((lum / 255) * (charArray.length - 1));
-                        const char = charArray[charArray.length - 1 - charIdx];
-                        const cleanChar = char.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                        if (cleanChar.trim() !== "") {
-                            svgMarkup += `<text x="${x * exportRes + exportRes/2}" y="${y * exportRes + exportRes/2}">${cleanChar}</text>`;
-                        }
-                    }
-                }
-                svgMarkup += `</g>`;
-            } else if (currentMode === 'svg') {
-                const stateCount = svgRawData.length;
-                const minS = parseFloat(controls.minS.value);
-                const maxS = parseFloat(controls.maxS.value);
-                const rot = parseInt(controls.rot.value);
-                const overrideColor = controls.svgCol.value;
+                // Inject our fusion magic directly into the SVG file definitions
+                svgMarkup = svgMarkup.replace('<defs>', `<defs>
+                    <filter id="exportGoo">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="${scaledFusion}" result="blur" />
+                        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                    </filter>
+                `);
+
+                // Apply the filter to the entire grouping of circles
+                svgMarkup += `<g filter="url(#exportGoo)" fill="${controls.gooColor.value}">`;
                 
                 for (let y = 0; y < rows; y++) {
                     for (let x = 0; x < cols; x++) {
@@ -810,23 +866,72 @@
                         if (invert) lum = 255 - lum;
 
                         const normalized = lum / 255;
-                        const state = Math.floor(normalized * (stateCount - 0.001)); 
-                        const scaleModifier = minS + (normalized * (maxS - minS));
-                        const currentSize = exportRes * scaleModifier;
-                        
-                        const rawSvg = svgRawData[state];
-                        if (rawSvg) {
-                            const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
-                            const innerContentMatch = tintedSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
-                            const innerContent = innerContentMatch ? innerContentMatch[1] : '';
-                            const cx = x * exportRes + exportRes / 2;
-                            const cy = y * exportRes + exportRes / 2;
+                        if (normalized > 0.05) {
+                            const currentSize = (exportRes * gooScale) * normalized;
+                            svgMarkup += `<circle cx="${x * exportRes + exportRes/2}" cy="${y * exportRes + exportRes/2}" r="${currentSize/2}" />`;
+                        }
+                    }
+                }
+                svgMarkup += `</g>`;
+
+            } else {
+                const charArray = [...controls.customChars.value];
+                const activeFont = controls.fontFamily.value;
+
+                if (currentMode === 'ascii' && charArray.length > 0) {
+                    
+                    svgMarkup += `<g fill="${controls.txtCol.value}" font-family="'${activeFont}', monospace" font-size="${exportRes}px" text-anchor="middle" dominant-baseline="central">`;
+                    
+                    for (let y = 0; y < rows; y++) {
+                        for (let x = 0; x < cols; x++) {
+                            const i = (y * cols + x) * 4;
+                            let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                            lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                            lum = Math.max(0, Math.min(255, lum));
+                            if (invert) lum = 255 - lum;
+                            const charIdx = Math.floor((lum / 255) * (charArray.length - 1));
+                            const char = charArray[charArray.length - 1 - charIdx];
+                            const cleanChar = char.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            if (cleanChar.trim() !== "") {
+                                svgMarkup += `<text x="${x * exportRes + exportRes/2}" y="${y * exportRes + exportRes/2}">${cleanChar}</text>`;
+                            }
+                        }
+                    }
+                    svgMarkup += `</g>`;
+                } else if (currentMode === 'svg') {
+                    const stateCount = svgRawData.length;
+                    const minS = parseFloat(controls.minS.value);
+                    const maxS = parseFloat(controls.maxS.value);
+                    const rot = parseInt(controls.rot.value);
+                    const overrideColor = controls.svgCol.value;
+                    
+                    for (let y = 0; y < rows; y++) {
+                        for (let x = 0; x < cols; x++) {
+                            const i = (y * cols + x) * 4;
+                            let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
+                            lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
+                            lum = Math.max(0, Math.min(255, lum));
+                            if (invert) lum = 255 - lum;
+
+                            const normalized = lum / 255;
+                            const state = Math.floor(normalized * (stateCount - 0.001)); 
+                            const scaleModifier = minS + (normalized * (maxS - minS));
+                            const currentSize = exportRes * scaleModifier;
                             
-                            svgMarkup += `<g transform="translate(${cx}, ${cy}) rotate(${rot})">
-                                <svg x="${-currentSize/2}" y="${-currentSize/2}" width="${currentSize}" height="${currentSize}" viewBox="0 0 100 100">
-                                    ${innerContent}
-                                </svg>
-                            </g>`;
+                            const rawSvg = svgRawData[state];
+                            if (rawSvg) {
+                                const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
+                                const innerContentMatch = tintedSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
+                                const innerContent = innerContentMatch ? innerContentMatch[1] : '';
+                                const cx = x * exportRes + exportRes / 2;
+                                const cy = y * exportRes + exportRes / 2;
+                                
+                                svgMarkup += `<g transform="translate(${cx}, ${cy}) rotate(${rot})">
+                                    <svg x="${-currentSize/2}" y="${-currentSize/2}" width="${currentSize}" height="${currentSize}" viewBox="0 0 100 100">
+                                        ${innerContent}
+                                    </svg>
+                                </g>`;
+                            }
                         }
                     }
                 }
@@ -835,7 +940,6 @@
             svgMarkup += `</svg>`;
             const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
             const link = document.createElement('a');
-            // NEW NAME:
             link.download = `asciilator_${Date.now()}_${controls.exportResolution.value}.svg`;
             link.href = URL.createObjectURL(blob);
             link.click();
@@ -876,7 +980,6 @@
                     const blob = new Blob(chunks, { type: 'video/webm' });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    // NEW NAME:
                     a.download = `asciilator_render_${Date.now()}.webm`;
                     a.click();
                     
