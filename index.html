@@ -169,7 +169,6 @@
 </head>
 <body>
 
-    <!-- NEW: Hidden SVG filter that mathematically fuses the dots -->
     <svg style="visibility: hidden; position: absolute;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
         <defs>
             <filter id="goo">
@@ -180,7 +179,6 @@
     </svg>
 
     <div id="sidebar">
-        <!-- STICKY HEADER -->
         <div class="sticky-header">
             <h2>ASCII-LATOR</h2>
             <div class="segmented-control">
@@ -188,24 +186,20 @@
                 <label for="modeAscii">ASCII</label>
                 <input type="radio" name="mode" id="modeSvg" value="svg">
                 <label for="modeSvg">SVG Shapes</label>
-                <!-- NEW: Gooey Engine Toggle -->
                 <input type="radio" name="mode" id="modeGooey" value="gooey">
                 <label for="modeGooey">Gooey Fused</label>
             </div>
         </div>
 
-        <!-- Media & Playback -->
         <div class="card">
             <h3>Media Source</h3>
             <input type="file" id="mediaInput" accept="video/*,image/*">
-            
             <div id="playbackControls" class="row hidden" style="margin-top: 8px;">
                 <button id="playPauseBtn" class="btn">Pause</button>
                 <input type="range" id="scrubber" min="0" max="100" value="0" step="0.1" style="flex-grow: 1;">
             </div>
         </div>
 
-        <!-- Global Engine Settings -->
         <div class="card">
             <h3>Grid & Display</h3>
             <div class="control-group">
@@ -215,19 +209,16 @@
                 </div>
                 <input type="range" id="resolution" min="4" max="50" value="12">
             </div>
-
             <div class="control-group" style="margin-top: 8px;">
                 <div class="row"><label>Contrast Overdrive</label></div>
                 <input type="range" id="contrast" min="1" max="5" step="0.1" value="1">
             </div>
-
             <div class="row" style="margin-top: 8px;">
                 <div class="control-group" style="flex: 1;">
                     <label>Background</label>
                     <input type="color" id="bgColor" value="#050505">
                 </div>
             </div>
-
             <div class="control-group" style="margin-top: 4px; gap: 12px;">
                 <label class="row-start" for="forceSquare">
                     <input type="checkbox" id="forceSquare">
@@ -240,7 +231,6 @@
             </div>
         </div>
 
-        <!-- ASCII Specific -->
         <div id="asciiControls" class="card">
             <h3>ASCII Parameters</h3>
             <div class="row">
@@ -274,7 +264,6 @@
             </div>
         </div>
 
-        <!-- SVG Specific -->
         <div id="svgControls" class="card hidden">
             <h3>SVG Parameters</h3>
             <div class="row">
@@ -292,7 +281,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="row" style="margin-top: 8px;">
                 <div class="control-group" style="flex: 1;">
                     <div class="row"><label>Min Scale</label></div>
@@ -303,7 +291,6 @@
                     <input type="range" id="maxScale" min="0.5" max="2" step="0.1" value="1.0">
                 </div>
             </div>
-
             <div class="control-group" style="margin-top: 8px;">
                 <label>Highlight States (Dark to Light)</label>
                 <div class="svg-grid" id="svgUploads"></div>
@@ -311,7 +298,6 @@
             </div>
         </div>
 
-        <!-- NEW: Gooey Engine Controls -->
         <div id="gooeyControls" class="card hidden">
             <h3>Gooey Parameters</h3>
             <div class="row">
@@ -321,18 +307,15 @@
                 </div>
                 <div class="control-group" style="flex: 1;">
                     <div class="row"><label>Fusion Amount</label></div>
-                    <!-- Controls how heavily the dots blur and fuse -->
                     <input type="range" id="gooFusion" min="1" max="30" value="12">
                 </div>
             </div>
             <div class="control-group" style="margin-top: 8px;">
                 <div class="row"><label>Dot Scale Multiplier</label></div>
-                <!-- Controls the base size of the dots before they begin to fuse -->
                 <input type="range" id="gooScale" min="0.5" max="3" step="0.1" value="1.5">
             </div>
         </div>
 
-        <!-- Export -->
         <div class="card" style="margin-bottom: 20px;">
             <h3>Export Tools</h3>
             
@@ -355,7 +338,14 @@
                 <button id="exportPngBtn" class="btn" style="flex: 1;">Save .PNG</button>
                 <button id="exportSvgBtn" class="btn" style="flex: 1;">Save .SVG</button>
             </div>
-            <button id="recordBtn" class="btn btn-filled" style="margin-top: 8px;">Export Full Video (.WebM)</button>
+            
+            <div class="row" style="margin-top: 8px;">
+                <select id="videoFormat" style="flex: 1; margin-right: 8px;">
+                    <option value="webm">.WebM (Lighter)</option>
+                    <option value="mp4">.MP4 (Safari)</option>
+                </select>
+                <button id="recordBtn" class="btn btn-filled" style="flex: 2;">Export Video</button>
+            </div>
         </div>
     </div>
 
@@ -398,7 +388,6 @@
             svgCol: document.getElementById('svgColor'),
             addStateBtn: document.getElementById('addStateBtn'),
 
-            // NEW: Bindings for Gooey Mode
             gooColor: document.getElementById('gooColor'),
             gooFusion: document.getElementById('gooFusion'),
             gooScale: document.getElementById('gooScale'),
@@ -406,12 +395,12 @@
             playbackPanel: document.getElementById('playbackControls'),
             playBtn: document.getElementById('playPauseBtn'),
             scrubber: document.getElementById('scrubber'),
-            exportResolution: document.getElementById('exportResolution')
+            exportResolution: document.getElementById('exportResolution'),
+            videoFormat: document.getElementById('videoFormat')
         };
 
         controls.res.oninput = (e) => controls.resVal.textContent = e.target.value;
 
-        // NEW: Real-time update of the SVG Filter Blur amount
         controls.gooFusion.addEventListener('input', (e) => {
             document.getElementById('gooBlur').setAttribute('stdDeviation', e.target.value);
         });
@@ -430,7 +419,6 @@
                 currentMode = e.target.value;
                 document.getElementById('asciiControls').classList.toggle('hidden', currentMode !== 'ascii');
                 document.getElementById('svgControls').classList.toggle('hidden', currentMode !== 'svg');
-                // NEW: Show Gooey controls
                 document.getElementById('gooeyControls').classList.toggle('hidden', currentMode !== 'gooey');
             });
         });
@@ -569,7 +557,6 @@
             return { cols, rows, res, imgData: sCtx.getImageData(0, 0, cols, rows).data };
         }
 
-        // --- NEW: Offscreen Canvas explicitly for Fusing the Gooey dots ---
         let gooCanvas = document.createElement('canvas');
         let gooCtx = gooCanvas.getContext('2d');
 
@@ -581,7 +568,6 @@
 
             const { cols, rows, res, imgData } = getGridData();
 
-            // Setup Main Canvas Background
             if (controls.transparentBg.checked) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             } else {
@@ -592,21 +578,17 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
 
-            // --- GOOEY RENDERING LOGIC ---
             if (currentMode === 'gooey') {
-                // Ensure temporary gooey canvas matches main canvas size exactly
                 if (gooCanvas.width !== canvas.width || gooCanvas.height !== canvas.height) {
                     gooCanvas.width = canvas.width;
                     gooCanvas.height = canvas.height;
                 }
                 
-                // We MUST clear it to fully transparent so the SVG filter functions correctly
                 gooCtx.clearRect(0, 0, gooCanvas.width, gooCanvas.height);
                 
                 const gooScale = parseFloat(controls.gooScale.value);
                 gooCtx.fillStyle = controls.gooColor.value;
 
-                // Draw all circles onto the transparent offscreen canvas
                 for (let y = 0; y < rows; y++) {
                     for (let x = 0; x < cols; x++) {
                         const i = (y * cols + x) * 4;
@@ -617,7 +599,6 @@
 
                         const normalized = lum / 255;
                         
-                        // We filter out entirely dark areas so we don't draw microscopic invisible dots
                         if (normalized > 0.05) {
                             const currentSize = (res * gooScale) * normalized;
                             gooCtx.beginPath();
@@ -627,15 +608,11 @@
                     }
                 }
 
-                // Activate the SVG filter mathematically forcing the liquid fusion
                 ctx.filter = 'url(#goo)';
-                // Draw the offscreen canvas onto our main canvas
                 ctx.drawImage(gooCanvas, 0, 0);
-                // Turn filter off so it doesn't break future frames
                 ctx.filter = 'none';
 
             } else {
-                // --- ASCII & SVG RENDERING LOGIC ---
                 const rot = parseInt(controls.rot.value) * (Math.PI / 180);
                 const charArray = [...controls.customChars.value];
 
@@ -685,8 +662,6 @@
         }
         requestAnimationFrame(render);
 
-        // --- EXPORT LOGIC ---
-
         document.getElementById('exportPngBtn').onclick = () => {
             if (!mediaReady) return;
             const { cols, rows, res, imgData } = getGridData();
@@ -714,7 +689,6 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
-            // GOOEY HIGH-RES PNG LOGIC
             if (currentMode === 'gooey') {
                 const exportGooCanvas = document.createElement('canvas');
                 exportGooCanvas.width = exportW;
@@ -742,7 +716,6 @@
                     }
                 }
 
-                // To ensure 4K gooey looks identical to the preview, we must temporarily scale up the SVG blur parameter
                 const gooBlurElement = document.getElementById('gooBlur');
                 const originalFusion = gooBlurElement.getAttribute('stdDeviation');
                 const scaledFusion = originalFusion * scaleMultiplier;
@@ -752,11 +725,9 @@
                 eCtx.drawImage(exportGooCanvas, 0, 0);
                 eCtx.filter = 'none';
                 
-                // Revert SVG filter back to preview resolution
                 gooBlurElement.setAttribute('stdDeviation', originalFusion);
 
             } else {
-                // STANDARD HIGH-RES PNG LOGIC
                 const rot = parseInt(controls.rot.value) * (Math.PI / 180);
                 const charArray = [...controls.customChars.value];
 
@@ -809,6 +780,56 @@
             link.click();
         };
 
+        // --- NEW: TRUE VECTOR METABALL MATH FOR SVG EXPORT ---
+        function getMetaballBridge(nodeA, nodeB, maxReach, smoothness) {
+            let radius1 = nodeA.r;
+            let radius2 = nodeB.r;
+            let center1 = { x: nodeA.x, y: nodeA.y };
+            let center2 = { x: nodeB.x, y: nodeB.y };
+
+            const d = Math.hypot(center2.x - center1.x, center2.y - center1.y);
+            
+            // Ignore if too far apart, or if one is inside the other
+            if (radius1 === 0 || radius2 === 0 || d > radius1 + radius2 + maxReach || d <= Math.abs(radius1 - radius2)) {
+                return null;
+            }
+
+            let u1 = 0, u2 = 0;
+            if (d < radius1 + radius2) {
+                u1 = Math.acos(Math.max(-1, Math.min(1, (radius1 * radius1 + d * d - radius2 * radius2) / (2 * radius1 * d))));
+                u2 = Math.acos(Math.max(-1, Math.min(1, (radius2 * radius2 + d * d - radius1 * radius1) / (2 * radius2 * d))));
+            }
+
+            const angle1 = Math.atan2(center2.y - center1.y, center2.x - center1.x);
+            const angle2 = Math.acos(Math.max(-1, Math.min(1, (radius1 - radius2) / d)));
+
+            const spreadFactor = smoothness; 
+            const angle1a = angle1 + u1 + (angle2 - u1) * spreadFactor;
+            const angle1b = angle1 - u1 - (angle2 - u1) * spreadFactor;
+            const angle2a = angle1 + Math.PI - u2 - (Math.PI - u2 - angle2) * spreadFactor;
+            const angle2b = angle1 - Math.PI + u2 + (Math.PI - u2 - angle2) * spreadFactor;
+
+            const p1a = { x: center1.x + radius1 * Math.cos(angle1a), y: center1.y + radius1 * Math.sin(angle1a) };
+            const p1b = { x: center1.x + radius1 * Math.cos(angle1b), y: center1.y + radius1 * Math.sin(angle1b) };
+            const p2a = { x: center2.x + radius2 * Math.cos(angle2a), y: center2.y + radius2 * Math.sin(angle2a) };
+            const p2b = { x: center2.x + radius2 * Math.cos(angle2b), y: center2.y + radius2 * Math.sin(angle2b) };
+
+            const totalRadius = radius1 + radius2;
+            const d2Base = Math.min(smoothness, Math.hypot(p2a.x - p1a.x, p2a.y - p1a.y) / totalRadius);
+            const d2 = d2Base * Math.min(1, d * 2 / totalRadius);
+            
+            const r1 = radius1 * d2;
+            const r2 = radius2 * d2;
+
+            const p1a_c = { x: p1a.x - r1 * Math.sin(angle1a), y: p1a.y + r1 * Math.cos(angle1a) };
+            const p1b_c = { x: p1b.x + r1 * Math.sin(angle1b), y: p1b.y - r1 * Math.cos(angle1b) };
+            const p2a_c = { x: p2a.x + r2 * Math.sin(angle2a), y: p2a.y - r2 * Math.cos(angle2a) };
+            const p2b_c = { x: p2b.x - r2 * Math.sin(angle2b), y: p2b.y + r2 * Math.cos(angle2b) };
+
+            // Returns pure vector Bézier curve
+            return `<path d="M ${p1a.x.toFixed(2)} ${p1a.y.toFixed(2)} C ${p1a_c.x.toFixed(2)} ${p1a_c.y.toFixed(2)} ${p2a_c.x.toFixed(2)} ${p2a_c.y.toFixed(2)} ${p2a.x.toFixed(2)} ${p2a.y.toFixed(2)} L ${p2b.x.toFixed(2)} ${p2b.y.toFixed(2)} C ${p2b_c.x.toFixed(2)} ${p2b_c.y.toFixed(2)} ${p1b_c.x.toFixed(2)} ${p1b_c.y.toFixed(2)} ${p1b.x.toFixed(2)} ${p1b.y.toFixed(2)} Z" />`;
+        }
+
         document.getElementById('exportSvgBtn').onclick = () => {
             if (!mediaReady) return;
             const { cols, rows, res, imgData } = getGridData();
@@ -840,35 +861,82 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
-            // NEW: GOOEY SVG EXPORT
             if (currentMode === 'gooey') {
                 const gooScale = parseFloat(controls.gooScale.value);
-                const originalFusion = controls.gooFusion.value;
-                const scaledFusion = originalFusion * scaleMultiplier;
-
-                // Inject our fusion magic directly into the SVG file definitions
-                svgMarkup = svgMarkup.replace('<defs>', `<defs>
-                    <filter id="exportGoo">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="${scaledFusion}" result="blur" />
-                        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-                    </filter>
-                `);
-
-                // Apply the filter to the entire grouping of circles
-                svgMarkup += `<g filter="url(#exportGoo)" fill="${controls.gooColor.value}">`;
+                const fusionSlider = parseFloat(controls.gooFusion.value);
+                const maxReach = (fusionSlider / 10) * exportRes; // Maps blur radius to math radius
+                const exportSmoothness = 0.5; // Perfect 2D Metaball tangent ratio
                 
+                // NO FILTER TAG HERE. Pure vector group!
+                svgMarkup += `<g fill="${controls.gooColor.value}">`;
+                
+                const gridInfo = [];
+                // PASS 1: Build the grid and write all raw <circle> shapes
                 for (let y = 0; y < rows; y++) {
+                    gridInfo[y] = [];
                     for (let x = 0; x < cols; x++) {
                         const i = (y * cols + x) * 4;
                         let lum = (0.2126 * imgData[i] + 0.7152 * imgData[i+1] + 0.0722 * imgData[i+2]);
                         lum = ((lum / 255 - 0.5) * contrastVal + 0.5) * 255;
                         lum = Math.max(0, Math.min(255, lum));
                         if (invert) lum = 255 - lum;
-
+                        
                         const normalized = lum / 255;
-                        if (normalized > 0.05) {
-                            const currentSize = (exportRes * gooScale) * normalized;
-                            svgMarkup += `<circle cx="${x * exportRes + exportRes/2}" cy="${y * exportRes + exportRes/2}" r="${currentSize/2}" />`;
+                        let radius = 0;
+                        if (normalized > 0.05) radius = (exportRes * gooScale / 2) * normalized;
+                        
+                        gridInfo[y][x] = { x: x * exportRes + exportRes / 2, y: y * exportRes + exportRes / 2, r: radius };
+                        
+                        if (radius > 0) {
+                            svgMarkup += `<circle cx="${gridInfo[y][x].x.toFixed(2)}" cy="${gridInfo[y][x].y.toFixed(2)}" r="${radius.toFixed(2)}" />`;
+                        }
+                    }
+                }
+
+                // PASS 2: Trace Organic Vectors & Fill Holes
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        const node = gridInfo[y][x];
+                        if (node.r === 0) continue;
+                        
+                        const right = (x < cols - 1) ? gridInfo[y][x+1] : null;
+                        const down = (y < rows - 1) ? gridInfo[y+1][x] : null;
+                        const diagRight = (x < cols - 1 && y < rows - 1) ? gridInfo[y+1][x+1] : null;
+                        const diagLeft = (x > 0 && y < rows - 1) ? gridInfo[y+1][x-1] : null;
+
+                        let cRight = false;
+                        let cDown = false;
+                        
+                        // Bridge Horizontal
+                        if (right && right.r > 0) {
+                            const bridge = getMetaballBridge(node, right, maxReach, exportSmoothness);
+                            if (bridge) { svgMarkup += bridge; cRight = true; }
+                        }
+                        // Bridge Vertical
+                        if (down && down.r > 0) {
+                            const bridge = getMetaballBridge(node, down, maxReach, exportSmoothness);
+                            if (bridge) { svgMarkup += bridge; cDown = true; }
+                        }
+                        // Bridge Diagonals to perfectly mimic blur mesh
+                        if (diagRight && diagRight.r > 0) {
+                            const bridge = getMetaballBridge(node, diagRight, maxReach, exportSmoothness);
+                            if (bridge) svgMarkup += bridge;
+                        }
+                        if (diagLeft && diagLeft.r > 0) {
+                            const bridge = getMetaballBridge(node, diagLeft, maxReach, exportSmoothness);
+                            if (bridge) svgMarkup += bridge;
+                        }
+                        
+                        // HOLE FILLER: If 4 dots form a dense square, add a circle to the center to prevent diamond-shaped gaps
+                        if (cRight && cDown && diagRight && diagRight.r > 0) {
+                            if (Math.hypot(right.x - node.x, right.y - node.y) < node.r + right.r + maxReach &&
+                                Math.hypot(down.x - node.x, down.y - node.y) < node.r + down.r + maxReach) {
+                                
+                                const cx = (node.x + right.x + down.x + diagRight.x) / 4;
+                                const cy = (node.y + right.y + down.y + diagRight.y) / 4;
+                                const centerRadius = Math.max(node.r, right.r, down.r, diagRight.r) * 0.8;
+                                svgMarkup += `<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${centerRadius.toFixed(2)}" />`;
+                            }
                         }
                     }
                 }
@@ -877,6 +945,7 @@
             } else {
                 const charArray = [...controls.customChars.value];
                 const activeFont = controls.fontFamily.value;
+                const rot = parseInt(controls.rot.value) * (Math.PI / 180);
 
                 if (currentMode === 'ascii' && charArray.length > 0) {
                     
@@ -902,7 +971,6 @@
                     const stateCount = svgRawData.length;
                     const minS = parseFloat(controls.minS.value);
                     const maxS = parseFloat(controls.maxS.value);
-                    const rot = parseInt(controls.rot.value);
                     const overrideColor = controls.svgCol.value;
                     
                     for (let y = 0; y < rows; y++) {
@@ -970,22 +1038,37 @@
                 
                 chunks = [];
                 const stream = canvas.captureStream(30); 
-                recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                
+                const format = controls.videoFormat.value;
+                let mimeType = 'video/webm';
+                let ext = 'webm';
+                
+                if (format === 'mp4') {
+                    if (MediaRecorder.isTypeSupported('video/mp4')) {
+                        mimeType = 'video/mp4';
+                        ext = 'mp4';
+                    } else {
+                        alert("Your browser does not natively support MP4 recording (Try Safari). Exporting as WebM instead.");
+                        controls.videoFormat.value = 'webm';
+                    }
+                }
+
+                recorder = new MediaRecorder(stream, { mimeType: mimeType });
                 
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) chunks.push(e.data);
                 };
                 
                 recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const blob = new Blob(chunks, { type: mimeType });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `asciilator_render_${Date.now()}.webm`;
+                    a.download = `asciilator_render_${Date.now()}.${ext}`;
                     a.click();
                     
                     isExporting = false;
                     video.loop = true; 
-                    recordBtn.textContent = "Export Full Video (.WebM)";
+                    recordBtn.textContent = "Export Video";
                     recordBtn.classList.remove('btn-error');
                     recordBtn.classList.add('btn-filled');
                     controls.scrubber.value = video.currentTime;
