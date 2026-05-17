@@ -194,6 +194,7 @@
         <div class="card">
             <h3>Media Source</h3>
             <input type="file" id="mediaInput" accept="video/*,image/*">
+            
             <div id="playbackControls" class="row hidden" style="margin-top: 8px;">
                 <button id="playPauseBtn" class="btn">Pause</button>
                 <input type="range" id="scrubber" min="0" max="100" value="0" step="0.1" style="flex-grow: 1;">
@@ -209,16 +210,19 @@
                 </div>
                 <input type="range" id="resolution" min="4" max="50" value="12">
             </div>
+
             <div class="control-group" style="margin-top: 8px;">
                 <div class="row"><label>Contrast Overdrive</label></div>
                 <input type="range" id="contrast" min="1" max="5" step="0.1" value="1">
             </div>
+
             <div class="row" style="margin-top: 8px;">
                 <div class="control-group" style="flex: 1;">
                     <label>Background</label>
                     <input type="color" id="bgColor" value="#050505">
                 </div>
             </div>
+
             <div class="control-group" style="margin-top: 4px; gap: 12px;">
                 <label class="row-start" for="forceSquare">
                     <input type="checkbox" id="forceSquare">
@@ -281,6 +285,7 @@
                     </select>
                 </div>
             </div>
+
             <div class="row" style="margin-top: 8px;">
                 <div class="control-group" style="flex: 1;">
                     <div class="row"><label>Min Scale</label></div>
@@ -291,6 +296,7 @@
                     <input type="range" id="maxScale" min="0.5" max="2" step="0.1" value="1.0">
                 </div>
             </div>
+
             <div class="control-group" style="margin-top: 8px;">
                 <label>Highlight States (Dark to Light)</label>
                 <div class="svg-grid" id="svgUploads"></div>
@@ -342,7 +348,7 @@
             <div class="row" style="margin-top: 8px;">
                 <select id="videoFormat" style="flex: 1; margin-right: 8px;">
                     <option value="webm">.WebM (Lighter)</option>
-                    <option value="mp4">.MP4 (Safari)</option>
+                    <option value="mp4">.MP4 (Safari/Mac)</option>
                 </select>
                 <button id="recordBtn" class="btn btn-filled" style="flex: 2;">Export Video</button>
             </div>
@@ -401,6 +407,7 @@
 
         controls.res.oninput = (e) => controls.resVal.textContent = e.target.value;
 
+        // Real-time update of the SVG Filter Blur amount
         controls.gooFusion.addEventListener('input', (e) => {
             document.getElementById('gooBlur').setAttribute('stdDeviation', e.target.value);
         });
@@ -430,9 +437,42 @@
         ];
         const svgImages = [];
 
+        // --- NEW: ROBUST COLORING & SCALING LOGIC ---
+        // This targets ANY fill/stroke except none/transparent and automatically handles missing viewBoxes!
         function applyColorToSVG(rawSvg, targetColor) {
-            let updated = rawSvg.replace(/(fill|stroke)\s*=\s*["'](?:#000000|#000|black|#ffffff|#fff|white)["']/gi, `$1="${targetColor}"`);
-            updated = updated.replace(/(fill|stroke)\s*:\s*(?:#000000|#000|black|#ffffff|#fff|white)\b/gi, `$1: ${targetColor}`);
+            let updated = rawSvg;
+            
+            updated = updated.replace(/fill\s*=\s*["']([^"']+)["']/gi, (match, p1) => {
+                if (p1.trim().toLowerCase() === 'none' || p1.trim().toLowerCase() === 'transparent') return match;
+                return `fill="${targetColor}"`;
+            });
+            
+            updated = updated.replace(/stroke\s*=\s*["']([^"']+)["']/gi, (match, p1) => {
+                if (p1.trim().toLowerCase() === 'none' || p1.trim().toLowerCase() === 'transparent') return match;
+                return `stroke="${targetColor}"`;
+            });
+
+            updated = updated.replace(/(fill|stroke)\s*:\s*([^;"]+)(;|")/gi, (match, p1, p2, p3) => {
+                if (p2.trim().toLowerCase() === 'none' || p2.trim().toLowerCase() === 'transparent') return match;
+                return `${p1}: ${targetColor}${p3}`;
+            });
+
+            // Auto-detect dimensions to generate a viewBox if the SVG lacks one (Fixes off-center scaling bug)
+            let viewBoxMatch = updated.match(/viewBox\s*=\s*["']([^"']+)["']/i);
+            let widthMatch = updated.match(/<svg[^>]*\bwidth\s*=\s*["']([^"']+)["']/i);
+            let heightMatch = updated.match(/<svg[^>]*\bheight\s*=\s*["']([^"']+)["']/i);
+            
+            let w = widthMatch ? parseFloat(widthMatch[1]) : null;
+            let h = heightMatch ? parseFloat(heightMatch[1]) : null;
+
+            updated = updated.replace(/<svg([^>]*)>/i, (match, attrs) => {
+                let newAttrs = attrs.replace(/\b(width|height|x|y)\s*=\s*["'][^"']*["']/gi, '');
+                if (!viewBoxMatch && w !== null && h !== null && !isNaN(w) && !isNaN(h)) {
+                    newAttrs += ` viewBox="0 0 ${w} ${h}"`;
+                }
+                return `<svg${newAttrs} width="100%" height="100%" fill="${targetColor}">`;
+            });
+
             return updated;
         }
 
@@ -578,6 +618,7 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
 
+            // LIVE CANVAS KEEPS FAST FILTER RENDERING
             if (currentMode === 'gooey') {
                 if (gooCanvas.width !== canvas.width || gooCanvas.height !== canvas.height) {
                     gooCanvas.width = canvas.width;
@@ -689,6 +730,7 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
+            // PNG KEEPS FILTER METHOD FOR PERFECT PIXEL MATH
             if (currentMode === 'gooey') {
                 const exportGooCanvas = document.createElement('canvas');
                 exportGooCanvas.width = exportW;
@@ -780,56 +822,8 @@
             link.click();
         };
 
-        // --- NEW: TRUE VECTOR METABALL MATH FOR SVG EXPORT ---
-        function getMetaballBridge(nodeA, nodeB, maxReach, smoothness) {
-            let radius1 = nodeA.r;
-            let radius2 = nodeB.r;
-            let center1 = { x: nodeA.x, y: nodeA.y };
-            let center2 = { x: nodeB.x, y: nodeB.y };
-
-            const d = Math.hypot(center2.x - center1.x, center2.y - center1.y);
-            
-            // Ignore if too far apart, or if one is inside the other
-            if (radius1 === 0 || radius2 === 0 || d > radius1 + radius2 + maxReach || d <= Math.abs(radius1 - radius2)) {
-                return null;
-            }
-
-            let u1 = 0, u2 = 0;
-            if (d < radius1 + radius2) {
-                u1 = Math.acos(Math.max(-1, Math.min(1, (radius1 * radius1 + d * d - radius2 * radius2) / (2 * radius1 * d))));
-                u2 = Math.acos(Math.max(-1, Math.min(1, (radius2 * radius2 + d * d - radius1 * radius1) / (2 * radius2 * d))));
-            }
-
-            const angle1 = Math.atan2(center2.y - center1.y, center2.x - center1.x);
-            const angle2 = Math.acos(Math.max(-1, Math.min(1, (radius1 - radius2) / d)));
-
-            const spreadFactor = smoothness; 
-            const angle1a = angle1 + u1 + (angle2 - u1) * spreadFactor;
-            const angle1b = angle1 - u1 - (angle2 - u1) * spreadFactor;
-            const angle2a = angle1 + Math.PI - u2 - (Math.PI - u2 - angle2) * spreadFactor;
-            const angle2b = angle1 - Math.PI + u2 + (Math.PI - u2 - angle2) * spreadFactor;
-
-            const p1a = { x: center1.x + radius1 * Math.cos(angle1a), y: center1.y + radius1 * Math.sin(angle1a) };
-            const p1b = { x: center1.x + radius1 * Math.cos(angle1b), y: center1.y + radius1 * Math.sin(angle1b) };
-            const p2a = { x: center2.x + radius2 * Math.cos(angle2a), y: center2.y + radius2 * Math.sin(angle2a) };
-            const p2b = { x: center2.x + radius2 * Math.cos(angle2b), y: center2.y + radius2 * Math.sin(angle2b) };
-
-            const totalRadius = radius1 + radius2;
-            const d2Base = Math.min(smoothness, Math.hypot(p2a.x - p1a.x, p2a.y - p1a.y) / totalRadius);
-            const d2 = d2Base * Math.min(1, d * 2 / totalRadius);
-            
-            const r1 = radius1 * d2;
-            const r2 = radius2 * d2;
-
-            const p1a_c = { x: p1a.x - r1 * Math.sin(angle1a), y: p1a.y + r1 * Math.cos(angle1a) };
-            const p1b_c = { x: p1b.x + r1 * Math.sin(angle1b), y: p1b.y - r1 * Math.cos(angle1b) };
-            const p2a_c = { x: p2a.x + r2 * Math.sin(angle2a), y: p2a.y - r2 * Math.cos(angle2a) };
-            const p2b_c = { x: p2b.x - r2 * Math.sin(angle2b), y: p2b.y + r2 * Math.cos(angle2b) };
-
-            // Returns pure vector Bézier curve
-            return `<path d="M ${p1a.x.toFixed(2)} ${p1a.y.toFixed(2)} C ${p1a_c.x.toFixed(2)} ${p1a_c.y.toFixed(2)} ${p2a_c.x.toFixed(2)} ${p2a_c.y.toFixed(2)} ${p2a.x.toFixed(2)} ${p2a.y.toFixed(2)} L ${p2b.x.toFixed(2)} ${p2b.y.toFixed(2)} C ${p2b_c.x.toFixed(2)} ${p2b_c.y.toFixed(2)} ${p1b_c.x.toFixed(2)} ${p1b_c.y.toFixed(2)} ${p1b.x.toFixed(2)} ${p1b.y.toFixed(2)} Z" />`;
-        }
-
+        // --- NEW SVG EXPORT: PURE TANGENT HULL VECTOR MATH (NO FILTERS, NO BEZIERS, NO GLITCHES) ---
+        // This calculates the geometric lines connecting the outermost edges of any two circles
         document.getElementById('exportSvgBtn').onclick = () => {
             if (!mediaReady) return;
             const { cols, rows, res, imgData } = getGridData();
@@ -861,13 +855,13 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
+            // --- NEW VECTOR GOOEY LOGIC ---
             if (currentMode === 'gooey') {
                 const gooScale = parseFloat(controls.gooScale.value);
                 const fusionSlider = parseFloat(controls.gooFusion.value);
-                const maxReach = (fusionSlider / 10) * exportRes; // Maps blur radius to math radius
-                const exportSmoothness = 0.5; // Perfect 2D Metaball tangent ratio
+                const maxReach = (fusionSlider / 10) * exportRes; 
                 
-                // NO FILTER TAG HERE. Pure vector group!
+                // NO FILTERS! Pure SVG grouping.
                 svgMarkup += `<g fill="${controls.gooColor.value}">`;
                 
                 const gridInfo = [];
@@ -893,7 +887,32 @@
                     }
                 }
 
-                // PASS 2: Trace Organic Vectors & Fill Holes
+                // Helper to create pure tangent polygons between two circles
+                function getTangentPolygon(node1, node2) {
+                    const dx = node2.x - node1.x;
+                    const dy = node2.y - node1.y;
+                    const d = Math.hypot(dx, dy);
+                    
+                    if (d === 0 || d > node1.r + node2.r + maxReach) return "";
+                    if (d <= Math.abs(node1.r - node2.r)) return ""; 
+
+                    const angle = Math.atan2(dy, dx);
+                    const theta = Math.acos(Math.max(-1, Math.min(1, (node1.r - node2.r) / d)));
+
+                    const p1x = node1.x + node1.r * Math.cos(angle + theta);
+                    const p1y = node1.y + node1.r * Math.sin(angle + theta);
+                    const p2x = node1.x + node1.r * Math.cos(angle - theta);
+                    const p2y = node1.y + node1.r * Math.sin(angle - theta);
+                    
+                    const p3x = node2.x + node2.r * Math.cos(angle - theta);
+                    const p3y = node2.y + node2.r * Math.sin(angle - theta);
+                    const p4x = node2.x + node2.r * Math.cos(angle + theta);
+                    const p4y = node2.y + node2.r * Math.sin(angle + theta);
+
+                    return `<polygon points="${p1x.toFixed(2)},${p1y.toFixed(2)} ${p2x.toFixed(2)},${p2y.toFixed(2)} ${p3x.toFixed(2)},${p3y.toFixed(2)} ${p4x.toFixed(2)},${p4y.toFixed(2)}" />`;
+                }
+
+                // PASS 2: Trace Stable Tangent Hulls
                 for (let y = 0; y < rows; y++) {
                     for (let x = 0; x < cols; x++) {
                         const node = gridInfo[y][x];
@@ -901,41 +920,27 @@
                         
                         const right = (x < cols - 1) ? gridInfo[y][x+1] : null;
                         const down = (y < rows - 1) ? gridInfo[y+1][x] : null;
-                        const diagRight = (x < cols - 1 && y < rows - 1) ? gridInfo[y+1][x+1] : null;
-                        const diagLeft = (x > 0 && y < rows - 1) ? gridInfo[y+1][x-1] : null;
+                        const diag = (x < cols - 1 && y < rows - 1) ? gridInfo[y+1][x+1] : null;
 
-                        let cRight = false;
-                        let cDown = false;
+                        let bRight = false;
+                        let bDown = false;
                         
-                        // Bridge Horizontal
                         if (right && right.r > 0) {
-                            const bridge = getMetaballBridge(node, right, maxReach, exportSmoothness);
-                            if (bridge) { svgMarkup += bridge; cRight = true; }
-                        }
-                        // Bridge Vertical
-                        if (down && down.r > 0) {
-                            const bridge = getMetaballBridge(node, down, maxReach, exportSmoothness);
-                            if (bridge) { svgMarkup += bridge; cDown = true; }
-                        }
-                        // Bridge Diagonals to perfectly mimic blur mesh
-                        if (diagRight && diagRight.r > 0) {
-                            const bridge = getMetaballBridge(node, diagRight, maxReach, exportSmoothness);
-                            if (bridge) svgMarkup += bridge;
-                        }
-                        if (diagLeft && diagLeft.r > 0) {
-                            const bridge = getMetaballBridge(node, diagLeft, maxReach, exportSmoothness);
-                            if (bridge) svgMarkup += bridge;
+                            const poly = getTangentPolygon(node, right);
+                            if (poly) { svgMarkup += poly; bRight = true; }
                         }
                         
-                        // HOLE FILLER: If 4 dots form a dense square, add a circle to the center to prevent diamond-shaped gaps
-                        if (cRight && cDown && diagRight && diagRight.r > 0) {
-                            if (Math.hypot(right.x - node.x, right.y - node.y) < node.r + right.r + maxReach &&
-                                Math.hypot(down.x - node.x, down.y - node.y) < node.r + down.r + maxReach) {
-                                
-                                const cx = (node.x + right.x + down.x + diagRight.x) / 4;
-                                const cy = (node.y + right.y + down.y + diagRight.y) / 4;
-                                const centerRadius = Math.max(node.r, right.r, down.r, diagRight.r) * 0.8;
-                                svgMarkup += `<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${centerRadius.toFixed(2)}" />`;
+                        if (down && down.r > 0) {
+                            const poly = getTangentPolygon(node, down);
+                            if (poly) { svgMarkup += poly; bDown = true; }
+                        }
+
+                        // Fill the diamond-shaped holes that form in the middle of a dense 2x2 grid of circles
+                        if (bRight && bDown && diag && diag.r > 0) {
+                            const dR = Math.hypot(diag.x - right.x, diag.y - right.y);
+                            const dD = Math.hypot(diag.x - down.x, diag.y - down.y);
+                            if (dR <= right.r + diag.r + maxReach && dD <= down.r + diag.r + maxReach) {
+                                svgMarkup += `<polygon points="${node.x.toFixed(2)},${node.y.toFixed(2)} ${right.x.toFixed(2)},${right.y.toFixed(2)} ${diag.x.toFixed(2)},${diag.y.toFixed(2)} ${down.x.toFixed(2)},${down.y.toFixed(2)}" />`;
                             }
                         }
                     }
@@ -962,6 +967,7 @@
                             const char = charArray[charArray.length - 1 - charIdx];
                             const cleanChar = char.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                             if (cleanChar.trim() !== "") {
+                                // NEW: Extract and perfectly scale custom SVGs loaded via the file inputs
                                 svgMarkup += `<text x="${x * exportRes + exportRes/2}" y="${y * exportRes + exportRes/2}">${cleanChar}</text>`;
                             }
                         }
@@ -988,6 +994,7 @@
                             
                             const rawSvg = svgRawData[state];
                             if (rawSvg) {
+                                // This perfectly centers and overrides dimensions while keeping user viewboxes!
                                 const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
                                 const innerContentMatch = tintedSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
                                 const innerContent = innerContentMatch ? innerContentMatch[1] : '';
@@ -1013,6 +1020,7 @@
             link.click();
         };
 
+        // --- NEW: MP4 and WebM Video Export ---
         let recorder, chunks = [];
         const recordBtn = document.getElementById('recordBtn');
         
@@ -1048,7 +1056,7 @@
                         mimeType = 'video/mp4';
                         ext = 'mp4';
                     } else {
-                        alert("Your browser does not natively support MP4 recording (Try Safari). Exporting as WebM instead.");
+                        alert("Your browser does not natively support MP4 encoding (Try Safari/Mac). Automatically exporting as WebM instead.");
                         controls.videoFormat.value = 'webm';
                     }
                 }
