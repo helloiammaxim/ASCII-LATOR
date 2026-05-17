@@ -187,7 +187,7 @@
                 <input type="radio" name="mode" id="modeSvg" value="svg">
                 <label for="modeSvg">SVG Shapes</label>
                 <input type="radio" name="mode" id="modeGooey" value="gooey">
-                <label for="modeGooey">Gooey Fused</label>
+                <label for="modeGooey">Vector Fused</label>
             </div>
         </div>
 
@@ -305,20 +305,26 @@
         </div>
 
         <div id="gooeyControls" class="card hidden">
-            <h3>Gooey Parameters</h3>
+            <h3>Vector Fusion Parameters</h3>
             <div class="row">
                 <div class="control-group" style="flex: 1;">
                     <label>Liquid Color</label>
                     <input type="color" id="gooColor" value="#A8C7FA">
                 </div>
                 <div class="control-group" style="flex: 1;">
-                    <div class="row"><label>Fusion Amount</label></div>
+                    <div class="row"><label>Fusion Reach</label></div>
                     <input type="range" id="gooFusion" min="1" max="30" value="12">
                 </div>
             </div>
+            
             <div class="control-group" style="margin-top: 8px;">
                 <div class="row"><label>Dot Scale Multiplier</label></div>
-                <input type="range" id="gooScale" min="0.5" max="3" step="0.1" value="1.5">
+                <input type="range" id="gooScale" min="0.5" max="3" step="0.1" value="1.2">
+            </div>
+            
+            <div class="control-group" style="margin-top: 8px;">
+                <div class="row"><label>Vector Smoothness (SVG Export Only)</label></div>
+                <input type="range" id="gooSmoothness" min="0.3" max="0.9" step="0.05" value="0.6">
             </div>
         </div>
 
@@ -346,12 +352,17 @@
             </div>
             
             <div class="row" style="margin-top: 8px;">
-                <select id="videoFormat" style="flex: 1; margin-right: 8px;">
-                    <option value="webm">.WebM (Lighter)</option>
-                    <option value="mp4">.MP4 (Safari/Mac)</option>
+                <select id="videoFormat" style="flex: 1; margin-right: 4px;">
+                    <option value="webm">.WebM</option>
+                    <option value="mp4">.MP4</option>
+                    <option value="mov">.MOV (Apple/Pro)</option>
                 </select>
-                <button id="recordBtn" class="btn btn-filled" style="flex: 2;">Export Video</button>
+                <select id="videoQuality" style="flex: 1; margin-right: 8px;">
+                    <option value="8000000">Standard</option>
+                    <option value="60000000">Max Quality (Heavy)</option>
+                </select>
             </div>
+            <button id="recordBtn" class="btn btn-filled" style="margin-top: 8px;">Export Video</button>
         </div>
     </div>
 
@@ -397,17 +408,18 @@
             gooColor: document.getElementById('gooColor'),
             gooFusion: document.getElementById('gooFusion'),
             gooScale: document.getElementById('gooScale'),
+            gooSmoothness: document.getElementById('gooSmoothness'), 
             
             playbackPanel: document.getElementById('playbackControls'),
             playBtn: document.getElementById('playPauseBtn'),
             scrubber: document.getElementById('scrubber'),
             exportResolution: document.getElementById('exportResolution'),
-            videoFormat: document.getElementById('videoFormat')
+            videoFormat: document.getElementById('videoFormat'),
+            videoQuality: document.getElementById('videoQuality')
         };
 
         controls.res.oninput = (e) => controls.resVal.textContent = e.target.value;
 
-        // Real-time update of the SVG Filter Blur amount
         controls.gooFusion.addEventListener('input', (e) => {
             document.getElementById('gooBlur').setAttribute('stdDeviation', e.target.value);
         });
@@ -437,8 +449,6 @@
         ];
         const svgImages = [];
 
-        // --- NEW: ROBUST COLORING & SCALING LOGIC ---
-        // This targets ANY fill/stroke except none/transparent and automatically handles missing viewBoxes!
         function applyColorToSVG(rawSvg, targetColor) {
             let updated = rawSvg;
             
@@ -457,7 +467,6 @@
                 return `${p1}: ${targetColor}${p3}`;
             });
 
-            // Auto-detect dimensions to generate a viewBox if the SVG lacks one (Fixes off-center scaling bug)
             let viewBoxMatch = updated.match(/viewBox\s*=\s*["']([^"']+)["']/i);
             let widthMatch = updated.match(/<svg[^>]*\bwidth\s*=\s*["']([^"']+)["']/i);
             let heightMatch = updated.match(/<svg[^>]*\bheight\s*=\s*["']([^"']+)["']/i);
@@ -618,7 +627,6 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
 
-            // LIVE CANVAS KEEPS FAST FILTER RENDERING
             if (currentMode === 'gooey') {
                 if (gooCanvas.width !== canvas.width || gooCanvas.height !== canvas.height) {
                     gooCanvas.width = canvas.width;
@@ -730,7 +738,6 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
-            // PNG KEEPS FILTER METHOD FOR PERFECT PIXEL MATH
             if (currentMode === 'gooey') {
                 const exportGooCanvas = document.createElement('canvas');
                 exportGooCanvas.width = exportW;
@@ -822,8 +829,30 @@
             link.click();
         };
 
-        // --- NEW SVG EXPORT: PURE TANGENT HULL VECTOR MATH (NO FILTERS, NO BEZIERS, NO GLITCHES) ---
-        // This calculates the geometric lines connecting the outermost edges of any two circles
+        function getTangentBridge(node1, node2, maxReach) {
+            const dx = node2.x - node1.x;
+            const dy = node2.y - node1.y;
+            const d = Math.hypot(dx, dy);
+            
+            if (d === 0 || d > node1.r + node2.r + maxReach) return "";
+            if (d <= Math.abs(node1.r - node2.r)) return ""; 
+
+            const angle = Math.atan2(dy, dx);
+            const theta = Math.acos(Math.max(-1, Math.min(1, (node1.r - node2.r) / d)));
+
+            const p1x = node1.x + node1.r * Math.cos(angle + theta);
+            const p1y = node1.y + node1.r * Math.sin(angle + theta);
+            const p2x = node1.x + node1.r * Math.cos(angle - theta);
+            const p2y = node1.y + node1.r * Math.sin(angle - theta);
+            
+            const p3x = node2.x + node2.r * Math.cos(angle - theta);
+            const p3y = node2.y + node2.r * Math.sin(angle - theta);
+            const p4x = node2.x + node2.r * Math.cos(angle + theta);
+            const p4y = node2.y + node2.r * Math.sin(angle + theta);
+
+            return `<polygon points="${p1x.toFixed(2)},${p1y.toFixed(2)} ${p2x.toFixed(2)},${p2y.toFixed(2)} ${p3x.toFixed(2)},${p3y.toFixed(2)} ${p4x.toFixed(2)},${p4y.toFixed(2)}" />`;
+        }
+
         document.getElementById('exportSvgBtn').onclick = () => {
             if (!mediaReady) return;
             const { cols, rows, res, imgData } = getGridData();
@@ -855,17 +884,14 @@
             const invert = controls.invert.checked;
             const contrastVal = parseFloat(controls.contrast.value);
             
-            // --- NEW VECTOR GOOEY LOGIC ---
             if (currentMode === 'gooey') {
                 const gooScale = parseFloat(controls.gooScale.value);
                 const fusionSlider = parseFloat(controls.gooFusion.value);
                 const maxReach = (fusionSlider / 10) * exportRes; 
                 
-                // NO FILTERS! Pure SVG grouping.
                 svgMarkup += `<g fill="${controls.gooColor.value}">`;
                 
                 const gridInfo = [];
-                // PASS 1: Build the grid and write all raw <circle> shapes
                 for (let y = 0; y < rows; y++) {
                     gridInfo[y] = [];
                     for (let x = 0; x < cols; x++) {
@@ -887,32 +913,6 @@
                     }
                 }
 
-                // Helper to create pure tangent polygons between two circles
-                function getTangentPolygon(node1, node2) {
-                    const dx = node2.x - node1.x;
-                    const dy = node2.y - node1.y;
-                    const d = Math.hypot(dx, dy);
-                    
-                    if (d === 0 || d > node1.r + node2.r + maxReach) return "";
-                    if (d <= Math.abs(node1.r - node2.r)) return ""; 
-
-                    const angle = Math.atan2(dy, dx);
-                    const theta = Math.acos(Math.max(-1, Math.min(1, (node1.r - node2.r) / d)));
-
-                    const p1x = node1.x + node1.r * Math.cos(angle + theta);
-                    const p1y = node1.y + node1.r * Math.sin(angle + theta);
-                    const p2x = node1.x + node1.r * Math.cos(angle - theta);
-                    const p2y = node1.y + node1.r * Math.sin(angle - theta);
-                    
-                    const p3x = node2.x + node2.r * Math.cos(angle - theta);
-                    const p3y = node2.y + node2.r * Math.sin(angle - theta);
-                    const p4x = node2.x + node2.r * Math.cos(angle + theta);
-                    const p4y = node2.y + node2.r * Math.sin(angle + theta);
-
-                    return `<polygon points="${p1x.toFixed(2)},${p1y.toFixed(2)} ${p2x.toFixed(2)},${p2y.toFixed(2)} ${p3x.toFixed(2)},${p3y.toFixed(2)} ${p4x.toFixed(2)},${p4y.toFixed(2)}" />`;
-                }
-
-                // PASS 2: Trace Stable Tangent Hulls
                 for (let y = 0; y < rows; y++) {
                     for (let x = 0; x < cols; x++) {
                         const node = gridInfo[y][x];
@@ -926,16 +926,15 @@
                         let bDown = false;
                         
                         if (right && right.r > 0) {
-                            const poly = getTangentPolygon(node, right);
+                            const poly = getTangentBridge(node, right, maxReach);
                             if (poly) { svgMarkup += poly; bRight = true; }
                         }
                         
                         if (down && down.r > 0) {
-                            const poly = getTangentPolygon(node, down);
+                            const poly = getTangentBridge(node, down, maxReach);
                             if (poly) { svgMarkup += poly; bDown = true; }
                         }
 
-                        // Fill the diamond-shaped holes that form in the middle of a dense 2x2 grid of circles
                         if (bRight && bDown && diag && diag.r > 0) {
                             const dR = Math.hypot(diag.x - right.x, diag.y - right.y);
                             const dD = Math.hypot(diag.x - down.x, diag.y - down.y);
@@ -967,7 +966,6 @@
                             const char = charArray[charArray.length - 1 - charIdx];
                             const cleanChar = char.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                             if (cleanChar.trim() !== "") {
-                                // NEW: Extract and perfectly scale custom SVGs loaded via the file inputs
                                 svgMarkup += `<text x="${x * exportRes + exportRes/2}" y="${y * exportRes + exportRes/2}">${cleanChar}</text>`;
                             }
                         }
@@ -994,7 +992,6 @@
                             
                             const rawSvg = svgRawData[state];
                             if (rawSvg) {
-                                // This perfectly centers and overrides dimensions while keeping user viewboxes!
                                 const tintedSvg = applyColorToSVG(rawSvg, overrideColor);
                                 const innerContentMatch = tintedSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i);
                                 const innerContent = innerContentMatch ? innerContentMatch[1] : '';
@@ -1020,7 +1017,6 @@
             link.click();
         };
 
-        // --- NEW: MP4 and WebM Video Export ---
         let recorder, chunks = [];
         const recordBtn = document.getElementById('recordBtn');
         
@@ -1045,23 +1041,35 @@
                 video.onseeked = null; 
                 
                 chunks = [];
-                const stream = canvas.captureStream(30); 
+                // Upgrade to 60 FPS Capture
+                const stream = canvas.captureStream(60); 
                 
                 const format = controls.videoFormat.value;
+                const qualityBps = parseInt(controls.videoQuality.value, 10);
+                
                 let mimeType = 'video/webm';
                 let ext = 'webm';
                 
-                if (format === 'mp4') {
+                // Allow user to force .mov extension while using the browser's mp4 codec
+                if (format === 'mp4' || format === 'mov') {
                     if (MediaRecorder.isTypeSupported('video/mp4')) {
                         mimeType = 'video/mp4';
-                        ext = 'mp4';
+                        ext = format;
                     } else {
-                        alert("Your browser does not natively support MP4 encoding (Try Safari/Mac). Automatically exporting as WebM instead.");
+                        alert("Your browser does not natively support MP4 encoding. Falling back to WebM.");
                         controls.videoFormat.value = 'webm';
                     }
                 }
 
-                recorder = new MediaRecorder(stream, { mimeType: mimeType });
+                try {
+                    recorder = new MediaRecorder(stream, { 
+                        mimeType: mimeType,
+                        videoBitsPerSecond: qualityBps 
+                    });
+                } catch (e) {
+                    // Fallback if browser rejects custom bitrate
+                    recorder = new MediaRecorder(stream, { mimeType: mimeType });
+                }
                 
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) chunks.push(e.data);
